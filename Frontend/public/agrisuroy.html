@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriSuroy Booking</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <style>
+    :root { --cobalt:#264ab3; --lime:#a8dc2f; --ink:#18202a; --mist:#f5f7f4; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:"DM Sans",sans-serif; color:var(--ink); }
+    button, input, select { font:inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid #a8dc2f; outline-offset:3px; }
+    .app-shell { min-height:100vh; width:100%; overflow:hidden; background:#f5f7f4; }
+    .view { display:none; }
+    .view.active { display:block; animation:enter .36s ease both; }
+    .mobile-mode .web-only { display:none; }
+    .mobile-mode .web-stage { max-width:420px; padding:20px 0; }
+    .mobile-mode .mobile-shell { display:block; }
+    .desktop-mode .mobile-shell { display:none; }
+    .desktop-mode .web-stage { max-width:1440px; }
+    .hero-arc { border-radius:0 0 38% 0; }
+    .hero-image { clip-path:ellipse(74% 82% at 72% 42%); }
+    .chip { border:1px solid #cbd5e1; color:var(--ink); }
+    .chip.active { background:var(--cobalt); color:#fff; border-color:var(--cobalt); }
+    .listing.hidden-card { display:none; }
+    .phone { width:min(100%,390px); min-height:690px; border:10px solid #162038; border-radius:38px; overflow:hidden; background:#fff; box-shadow:0 25px 60px rgba(24,32,42,.25); position:relative; margin:0 auto; }
+    .mobile-content { padding-bottom:82px; min-height:680px; }
+    .mobile-bottom { position:absolute; bottom:0; left:0; right:0; display:grid; grid-template-columns:repeat(4,1fr); background:#fff; border-top:1px solid #e4e7e3; padding:9px 8px 12px; }
+    .bottom-nav { color:#64748b; }
+    .bottom-nav.active { color:var(--cobalt); }
+    .bottom-nav.active svg { stroke-width:3; }
+    .toast { opacity:0; pointer-events:none; transform:translateY(15px); transition:.25s; }
+    .toast.show { opacity:1; transform:translateY(0); }
+    .saved { color:#e26352; }
+    @keyframes enter { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    @media (max-width:760px) {
+      .web-stage { padding:0 !important; }
+      .web-page { border-radius:0 !important; }
+      .hero-arc { border-radius:0 0 60px 0; }
+    }
+  </style>
+</head>
+<body class="app-shell" style="background: rgb(245, 247, 244);">
+  <header class="w-full bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between gap-4">
+      <button type="button" class="flex items-center gap-2 text-left" onclick="goTo('home')" aria-label="Return to AgriSuroy home">
+        <span class="w-7 h-7 rounded-full bg-lime-400 text-blue-800 grid place-items-center font-extrabold">T</span>
+        <span class="text-sm font-extrabold tracking-tight" style="color:#264ab3;">TARPHA CORP.</span>
+      </button>
+      <div class="flex items-center rounded-full bg-slate-100 p-1" aria-label="Preview mode">
+        <button id="web-toggle" type="button" class="rounded-full px-4 py-2 text-sm font-bold bg-white text-blue-800 shadow-sm" onclick="setMode('desktop')" aria-pressed="true">Web</button>
+        <button id="mobile-toggle" type="button" class="rounded-full px-4 py-2 text-sm font-bold text-slate-600" onclick="setMode('mobile')" aria-pressed="false">Mobile App</button>
+      </div>
+      <button type="button" class="web-only text-sm font-bold text-blue-800 hover:underline" onclick="goTo('dashboard')">My trip ideas</button>
+    </div>
+  </header>
+
+  <main class="web-stage desktop-mode mx-auto p-5">
+    <section class="web-page bg-white rounded-[30px] overflow-hidden shadow-xl shadow-blue-950/10">
+
+      <div class="web-only flex items-center justify-between px-7 py-4 border-b border-slate-100">
+        <button type="button" class="font-extrabold text-2xl text-blue-800" onclick="goTo('home')">AgriSuroy Booking</button>
+        <nav class="flex gap-5 text-sm font-bold text-slate-600" aria-label="Primary navigation">
+          <button type="button" onclick="goTo('home')" class="hover:text-blue-800">Home</button>
+          <button type="button" onclick="goTo('explore')" class="hover:text-blue-800">Explore</button>
+          <button type="button" onclick="goTo('dashboard')" class="hover:text-blue-800">My trips</button>
+          <button type="button" onclick="goTo('profile')" class="hover:text-blue-800">Profile</button>
+        </nav>
+      </div>
+
+      <!-- HOME -->
+      <div id="home" class="view active">
+        <section class="hero-arc relative overflow-hidden bg-blue-800 px-7 py-12 md:px-14 md:py-16" style="background:#264ab3;">
+          <img loading="lazy" class="hero-image absolute inset-0 w-full h-full object-cover opacity-75" src="https://images.pexels.com/photos/12029295/pexels-photo-12029295.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Misty green mountain landscape">
+          <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-blue-900/85 to-blue-800/15"></div>
+          <div class="relative max-w-2xl text-white">
+            <p class="inline-block rounded-full bg-lime-400 px-3 py-1 text-xs font-extrabold tracking-wider text-blue-950" style="background:#a8dc2f; color:#18202a;">CARAGA AGRI-TOURISM ·</p>
+            <h1 class="mt-5 font-['Fraunces'] font-bold leading-tight" style="font-size:32px;">A gentler way to discover Caraga.</h1>
+            <p class="mt-4 max-w-xl text-lg text-blue-50" style="color:#eff6ff;">Discover Nature. Experience Culture.</p>
+            <form id="search-form" class="mt-7 grid gap-3 rounded-2xl bg-white p-3 md:grid-cols-[1.3fr_1fr_1fr_auto]" novalidate>
+              <div>
+                <label for="destination-search" class="sr-only">Search destination</label>
+                <input id="destination-search" class="w-full rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-800" type="search" placeholder="Destination">
+              </div>
+              <div>
+                <label for="activity-search" class="sr-only">Choose activity</label>
+                <select id="activity-search" class="w-full rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-800">
+                  <option value="">Any activity</option>
+                  <option>Farm Stay</option><option>Nature</option><option>Culture</option><option>Food</option><option>Adventure</option>
+                </select>
+              </div>
+              <div>
+                <label for="date-search" class="sr-only">Choose demo date</label>
+                <input id="date-search" class="w-full rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-800" type="date">
+              </div>
+              <button class="rounded-xl px-5 py-3 font-extrabold" type="submit" style="background:#a8dc2f; color:#18202a;">Explore destinations</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="px-7 py-10 md:px-14">
+          <div class="flex items-end justify-between gap-5">
+            <div>
+              <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color:#6f9d10;">Sample listings</p>
+              <h2 class="mt-2 font-['Fraunces'] font-bold text-blue-950" style="font-size:24px;">Made for slow, meaningful travel</h2>
+            </div>
+            <button type="button" onclick="goTo('explore')" class="text-sm font-bold text-blue-800 hover:underline">See all experiences</button>
+          </div>
+          <div class="mt-6 grid gap-5 md:grid-cols-3">
+            <article class="listing rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+              <img loading="lazy" class="h-40 w-full object-cover" src="https://images.pexels.com/photos/36802871/pexels-photo-36802871.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Bamboo cottage surrounded by tropical vegetation">
+              <div class="p-5">
+                <p class="text-xs font-extrabold uppercase text-lime-700" style="color:#6f9d10;">Farm stay · Demo</p>
+                <h3 class="mt-1 font-bold text-lg">Sibagat Farm Stay</h3>
+                <p class="mt-2 text-sm text-slate-600">Garden walks, good food, and a softer countryside pace.</p>
+                <button type="button" class="mt-4 text-sm font-extrabold text-blue-800" onclick="openDetail('farm')">View sample <span aria-hidden="true">→</span></button>
+              </div>
+            </article>
+            <article class="listing rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+              <img loading="lazy" class="h-40 w-full object-cover" src="https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Lush green terraced rice fields in the Philippines">
+              <div class="p-5">
+                <p class="text-xs font-extrabold uppercase text-lime-700" style="color:#6f9d10;">Nature</p>
+                <h3 class="mt-1 font-bold text-lg">Rice Field Trails</h3>
+                <p class="mt-2 text-sm text-slate-600">Follow field paths and meet the seasons behind every harvest.</p>
+                <button type="button" class="mt-4 text-sm font-extrabold text-blue-800" onclick="openDetail('rice')">View sample <span aria-hidden="true">→</span></button>
+              </div>
+            </article>
+            <article class="listing rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+              <img loading="lazy" class="h-40 w-full object-cover" src="https://images.pexels.com/photos/12029295/pexels-photo-12029295.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Misty green mountain landscape in the Philippines">
+              <div class="p-5">
+                <p class="text-xs font-extrabold uppercase text-lime-700" style="color:#6f9d10;">Adventure · Demo</p>
+                <h3 class="mt-1 font-bold text-lg">Lakewood Mountain View</h3>
+                <p class="mt-2 text-sm text-slate-600">A refreshing viewpoint journey with a local guide.</p>
+                <button type="button" class="mt-4 text-sm font-extrabold text-blue-800" onclick="openDetail('mountain')">View sample <span aria-hidden="true">→</span></button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="mx-7 mb-10 grid gap-7 rounded-3xl bg-lime-100 p-7 md:mx-14 md:grid-cols-[.8fr_1.2fr]" style="background:#ecfccb;">
+          <div>
+            <p class="text-xs font-extrabold uppercase tracking-widest text-blue-800" style="color:#264ab3;">Our mission</p>
+            <h2 class="mt-2 font-['Fraunces'] font-bold text-blue-950" style="font-size:24px;">Travel with a sense of place.</h2>
+          </div>
+          <p class="leading-relaxed text-slate-700" style="color:#334155;">AgriSuroy connects travelers with relaxing farm stays, hands-on agricultural experiences, and local culture across Caraga—helping communities share what makes home special.</p>
+        </section>
+      </div>
+
+      <!-- EXPLORE -->
+      <div id="explore" class="view px-7 py-9 md:px-14">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color:#6f9d10;">Discover · Demo content</p>
+            <h2 class="mt-2 font-['Fraunces'] font-bold text-blue-950" style="font-size:24px;">Choose your Caraga story</h2>
+          </div>
+          <button type="button" onclick="goTo('home')" class="rounded-full border border-slate-200 p-2 text-blue-800" aria-label="Back to home"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-2" role="group" aria-label="Destination filters">
+          <button class="chip active rounded-full border px-4 py-2 text-sm font-bold" type="button" data-filter="all">All</button>
+          <button class="chip rounded-full border px-4 py-2 text-sm font-bold" type="button" data-filter="Farm Stay">Farm Stay</button>
+          <button class="chip rounded-full border px-4 py-2 text-sm font-bold" type="button" data-filter="Nature">Nature</button>
+          <button class="chip rounded-full border px-4 py-2 text-sm font-bold" type="button" data-filter="Culture">Culture</button>
+          <button class="chip rounded-full border px-4 py-2 text-sm font-bold" type="button" data-filter="Food">Food</button>
+          <button class="chip rounded-full border px-4 py-2 text-sm font-bold" type="button" data-filter="Adventure">Adventure</button>
+        </div>
+        <p id="search-status" class="mt-5 text-sm text-slate-500" aria-live="polite"></p>
+        <div id="explore-list" class="mt-4 grid gap-5 md:grid-cols-2"></div>
+        <div id="empty-results" class="hidden mt-5 rounded-2xl bg-slate-50 p-8 text-center">
+          <p class="text-slate-600">No sample experiences match that search. Try another category or keyword.</p>
+        </div>
+      </div>
+
+      <!-- DETAIL -->
+      <div id="detail" class="view">
+        <div class="px-7 pt-7 md:px-14">
+          <button type="button" onclick="goTo('explore')" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800"><i data-lucide="arrow-left" class="w-4 h-4"></i>Back to explore</button>
+        </div>
+        <div class="px-7 py-6 md:px-14 md:grid md:grid-cols-2 md:gap-10">
+          <div class="grid grid-cols-3 gap-2">
+            <img id="detail-image-main" loading="lazy" class="col-span-3 h-64 w-full rounded-3xl object-cover" src="https://images.pexels.com/photos/35669317/pexels-photo-35669317.jpeg?auto=compress&cs=tinysrgb&w=1280" alt="Rice paddies and a rustic hut in a tropical landscape">
+            <img id="detail-image-second" loading="lazy" class="h-24 w-full rounded-xl object-cover" src="https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Green terraced rice fields">
+            <img id="detail-image-third" loading="lazy" class="col-span-2 h-24 w-full rounded-xl object-cover" src="https://images.pexels.com/photos/36499543/pexels-photo-36499543.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Filipino street vendors serving traditional food">
+          </div>
+          <div class="pt-7 md:pt-0">
+            <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color:#6f9d10;">Sample destination ·</p>
+            <h2 id="detail-title" class="mt-2 font-['Fraunces'] text-3xl font-bold text-blue-950"></h2>
+            <p id="detail-overview" class="mt-4 leading-relaxed text-slate-600"></p>
+            <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-xl bg-slate-50 p-4">
+                <p class="font-extrabold text-blue-900">Available activities</p>
+                <p id="activity-list" class="mt-1 text-slate-600"></p>
+              </div>
+              <div class="rounded-xl bg-slate-50 p-4">
+                <p class="font-extrabold text-blue-900">Includes</p>
+                <p class="mt-1 text-slate-600">Sample guide, welcome snack, shared stories</p>
+              </div>
+            </div>
+            <div class="mt-4 rounded-xl border border-lime-200 bg-lime-50 p-4">
+              <p class="text-xs font-extrabold uppercase text-lime-700" style="color:#6f9d10;">Host &amp; community</p>
+              <p id="host-copy" class="mt-1 text-sm text-slate-700"></p>
+            </div>
+            <div class="mt-6 flex items-center justify-between gap-3">
+              <div>
+                <p class="text-xs font-bold text-slate-500">Sample price</p>
+                <p id="price-copy" class="font-extrabold text-blue-900"></p>
+              </div>
+              <div class="flex gap-2">
+                <button id="save-button" type="button" class="rounded-xl border border-slate-200 p-3 text-slate-600" aria-label="Save destination" onclick="toggleSave()"><i data-lucide="heart" class="w-5 h-5"></i></button>
+                <button type="button" class="rounded-xl px-5 py-3 font-extrabold" onclick="goTo('booking')" style="background:#264ab3; color:#fff;">Book now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOOKING -->
+      <div id="booking" class="view max-w-4xl mx-auto px-7 py-9">
+        <button type="button" onclick="goTo('detail')" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800"><i data-lucide="arrow-left" class="w-4 h-4"></i>Back to destination</button>
+        <h2 class="mt-5 font-['Fraunces'] font-bold text-blue-950" style="font-size:24px;">Plan your demo escape</h2>
+        <p class="mt-2 text-slate-600">This is a client-side booking prototype. Dates, availability, and prices are sample only.</p>
+        <form id="booking-form" class="mt-7 grid gap-6 md:grid-cols-[1.2fr_.8fr]" novalidate>
+          <div class="space-y-4">
+            <div><label class="mb-2 block font-bold text-sm" for="booking-date">Preferred demo date</label><input id="booking-date" type="date" class="w-full rounded-xl border border-slate-200 px-4 py-3"></div>
+            <div><label class="mb-2 block font-bold text-sm" for="guests">Guest count</label><select id="guests" class="w-full rounded-xl border border-slate-200 px-4 py-3"><option value="">Select guests</option><option>1 guest</option><option>2 guests</option><option>3–4 guests</option><option>5+ guests</option></select></div>
+            <div><label class="mb-2 block font-bold text-sm" for="booking-activity">Preferred activity</label><select id="booking-activity" class="w-full rounded-xl border border-slate-200 px-4 py-3"><option value="">Select an activity</option><option>Farm walk</option><option>Rice-field tour</option><option>Local food tasting</option><option>Viewpoint hike</option></select></div>
+            <div><label class="mb-2 block font-bold text-sm" for="guest-name">Your name</label><input id="guest-name" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3"></div>
+            <div><label class="mb-2 block font-bold text-sm" for="guest-email">Email address</label><input id="guest-email" type="email" class="w-full rounded-xl border border-slate-200 px-4 py-3"></div>
+            <p id="booking-error" class="hidden rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert"></p>
+          </div>
+          <aside class="h-fit rounded-2xl p-5" style="background:#eff6ff;">
+            <h3 class="font-bold text-blue-950">Booking summary</h3>
+            <dl class="mt-4 space-y-3 text-sm text-slate-600">
+              <div class="flex justify-between gap-4"><dt>Destination</dt><dd id="summary-destination" class="font-bold text-right"></dd></div>
+              <div class="flex justify-between gap-4"><dt>Date</dt><dd id="summary-date" class="font-bold text-right"></dd></div>
+              <div class="flex justify-between gap-4"><dt>Guests</dt><dd id="summary-guests" class="font-bold text-right"></dd></div>
+              <div class="flex justify-between gap-4"><dt>Price</dt><dd class="font-bold text-right">price on request</dd></div>
+            </dl>
+            <button type="submit" class="mt-6 w-full rounded-xl px-5 py-3 font-extrabold" style="background:#264ab3; color:#fff;">Confirm demo booking</button>
+          </aside>
+        </form>
+      </div>
+
+      <!-- CONFIRMATION -->
+      <div id="confirmation" class="view px-7 py-16 text-center">
+        <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-lime-200 text-blue-900"><i data-lucide="check" class="w-8 h-8"></i></div>
+        <h2 class="mt-5 font-['Fraunces'] font-bold text-blue-950" style="font-size:24px;">Your demo trip is in the plan!</h2>
+        <p class="mx-auto mt-3 max-w-lg leading-relaxed text-slate-600">Your sample booking has been prepared locally for this prototype. No real reservation, payment, or availability request was made.</p>
+        <div class="mt-7 flex justify-center gap-3">
+          <button type="button" class="rounded-xl px-5 py-3 font-extrabold" onclick="goTo('dashboard')" style="background:#264ab3; color:#fff;">View my itinerary</button>
+          <button type="button" class="rounded-xl border border-blue-200 bg-white px-5 py-3 font-extrabold text-blue-800" onclick="goTo('explore')">Keep exploring</button>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div id="dashboard" class="view px-7 py-9 md:px-14">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color:#6f9d10;">My trip space · Demo</p>
+            <h2 class="mt-2 font-['Fraunces'] font-bold text-blue-950" style="font-size:24px;">Your Caraga itinerary</h2>
+          </div>
+          <button type="button" class="rounded-full border border-slate-200 p-2 text-blue-800" onclick="goTo('home')" aria-label="Back to home"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+        </div>
+        <div class="mt-7 grid gap-5 md:grid-cols-2">
+          <section class="rounded-2xl p-6" style="background:#ecfccb;">
+            <h3 class="font-bold text-blue-950">Upcoming booking</h3>
+            <div id="upcoming-booking" class="mt-4 rounded-xl bg-white p-4 text-sm text-slate-600"></div>
+          </section>
+          <section class="rounded-2xl p-6" style="background:#eff6ff;">
+            <h3 class="font-bold text-blue-950">Saved destinations</h3>
+            <div id="saved-list" class="mt-4 space-y-2 text-sm text-slate-600"></div>
+          </section>
+        </div>
+        <button type="button" class="mt-6 rounded-xl px-5 py-3 font-extrabold" onclick="goTo('explore')" style="background:#264ab3; color:#fff;">Plan my trip</button>
+      </div>
+
+      <!-- PROFILE -->
+      <div id="profile" class="view max-w-2xl mx-auto px-7 py-12 text-center">
+        <div class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-blue-800 text-white"><i data-lucide="sprout" class="w-8 h-8"></i></div>
+        <h2 class="mt-5 font-['Fraunces'] font-bold text-blue-950" style="font-size:24px;">Travel rooted in community</h2>
+        <p class="mt-3 leading-relaxed text-slate-600">AgriSuroy Booking is a visual, demo-safe prototype for discovering community-centered experiences throughout Caraga.</p>
+        <div class="mt-7 rounded-2xl bg-slate-50 p-5 text-left">
+          <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color:#6f9d10;">Connect with AgriSuroy</p>
+          <p class="mt-2 font-bold text-blue-900" style="color:#264ab3;">CARAGRISUROY@GMAIL.COM</p>
+          <p class="mt-1 text-sm font-bold text-blue-800" style="color:#264ab3;">WWW.AGRISUROY.COM</p>
+        </div>
+        <button type="button" class="mt-7 rounded-xl px-5 py-3 font-extrabold" onclick="resetDemo()" style="background:#a8dc2f; color:#18202a;">Reset demo</button>
+      </div>
+    </section>
+
+    <!-- MOBILE SHELL -->
+    <section class="mobile-shell mx-auto">
+      <div class="phone">
+        <div class="mobile-content">
+          <div class="flex items-center justify-between p-5">
+            <div>
+              <p class="text-[10px] font-extrabold text-blue-800" style="color:#264ab3;">TARPHA CORP.</p>
+              <h2 class="text-lg font-extrabold text-blue-950">AgriSuroy</h2>
+            </div>
+            <button type="button" class="rounded-full bg-lime-200 p-2 text-blue-900" onclick="goTo('profile')" aria-label="Open profile"><i data-lucide="user" class="w-4 h-4"></i></button>
+          </div>
+
+          <div id="mobile-home" class="mobile-view px-5">
+            <img loading="lazy" class="h-40 w-full rounded-3xl object-cover" src="https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Rice field and mountain landscape from AgriSuroy reference">
+            <p class="mt-4 font-['Fraunces'] text-2xl font-bold text-blue-950">Discover nature, one local story at a time.</p>
+            <button class="mt-4 w-full rounded-xl py-3 font-extrabold" type="button" onclick="goTo('explore')" style="background:#264ab3; color:#fff;">Explore destinations</button>
+            <h3 class="mt-7 font-bold text-blue-950">Featured samples</h3>
+            <div id="mobile-feature-list" class="mt-3 space-y-3"></div>
+          </div>
+
+          <div id="mobile-explore" class="mobile-view hidden px-5">
+            <h3 class="font-['Fraunces'] text-2xl font-bold text-blue-950">Explore Caraga</h3>
+            <div id="mobile-explore-list" class="mt-4 space-y-3"></div>
+          </div>
+
+          <div id="mobile-bookings" class="mobile-view hidden px-5">
+            <h3 class="font-['Fraunces'] text-2xl font-bold text-blue-950">My bookings</h3>
+            <div id="mobile-booking-card" class="mt-4 rounded-2xl bg-lime-100 p-4 text-sm text-slate-700"></div>
+            <button class="mt-4 w-full rounded-xl py-3 font-extrabold" type="button" onclick="goTo('explore')" style="background:#264ab3; color:#fff;">Plan my trip</button>
+          </div>
+
+          <div id="mobile-profile" class="mobile-view hidden px-5">
+            <h3 class="font-['Fraunces'] text-2xl font-bold text-blue-950">About AgriSuroy</h3>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600">Relaxing farm stays, hands-on experiences, and cultural moments across Caraga. All listings in this prototype are demos.</p>
+            <button class="mt-6 w-full rounded-xl py-3 font-extrabold" type="button" onclick="resetDemo()" style="background:#a8dc2f; color:#18202a;">Reset demo</button>
+          </div>
+        </div>
+        <nav class="mobile-bottom" aria-label="Mobile app navigation">
+          <button class="bottom-nav active grid place-items-center gap-1 text-[10px] font-bold" type="button" onclick="mobileTab('home')"><i data-lucide="house" class="w-5 h-5"></i><span>Home</span></button>
+          <button class="bottom-nav grid place-items-center gap-1 text-[10px] font-bold" type="button" onclick="mobileTab('explore')"><i data-lucide="compass" class="w-5 h-5"></i><span>Explore</span></button>
+          <button class="bottom-nav grid place-items-center gap-1 text-[10px] font-bold" type="button" onclick="mobileTab('bookings')"><i data-lucide="calendar-days" class="w-5 h-5"></i><span>Bookings</span></button>
+          <button class="bottom-nav grid place-items-center gap-1 text-[10px] font-bold" type="button" onclick="mobileTab('profile')"><i data-lucide="circle-user-round" class="w-5 h-5"></i><span>Profile</span></button>
+        </nav>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-3 text-sm font-bold text-white" role="status" aria-live="polite"></div>
+
+  <script>
+    const destinations = [
+      {id:"farm", name:"Sibagat Farm Stay", category:"Farm Stay", img:"https://images.pexels.com/photos/36802871/pexels-photo-36802871.jpeg?auto=compress&cs=tinysrgb&w=800", overview:"A slow, restorative farm escape with garden walks, simple meals, and a welcoming countryside rhythm.", activities:"Farm walk · Seedling session", host:"Hosted by a community farm collective in Caraga.", price:"from ₱1,200 / guest"},
+      {id:"rice", name:"Rice Field Trails", category:"Nature", img:"https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800", overview:"Follow green field paths and learn how local growing seasons shape everyday life.", activities:"Rice-field tour · Nature walk", host:"Hosted by a local guide community in Caraga.", price:"Demo from ₱850 / guest"},
+      {id:"mountain", name:"Lakewood Mountain View", category:"Adventure", img:"https://images.pexels.com/photos/12029295/pexels-photo-12029295.jpeg?auto=compress&cs=tinysrgb&w=800", overview:"A cool early-morning viewpoint journey for travelers seeking wide landscapes and quiet stories.", activities:"Viewpoint hike · Picnic stop", host:"Hosted by an upland guide community in Caraga.", price:"Demo from ₱950 / guest"},
+      {id:"culture", name:"Caraga Flavors & Stories", category:"Food", img:"https://images.pexels.com/photos/36499543/pexels-photo-36499543.jpeg?auto=compress&cs=tinysrgb&w=800", overview:"Taste locally inspired dishes and hear stories that celebrate homegrown ingredients.", activities:"Food tasting · Story circle", host:"Hosted by a food and culture collective in Caraga.", price:"Demo from ₱700 / guest"},
+      {id:"culture2", name:"Community Culture Walk", category:"Culture", img:"https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800", overview:"A gentle community-led walk centered on craft, connection, and local perspective.", activities:"Craft visit · Community walk", host:"Hosted by a cultural community in Caraga.", price:"Demo from ₱650 / guest"}
+    ];
+    const detailImages = {
+      main:"https://images.pexels.com/photos/35669317/pexels-photo-35669317.jpeg?auto=compress&cs=tinysrgb&w=1280",
+      second:"https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800",
+      third:"https://images.pexels.com/photos/36499543/pexels-photo-36499543.jpeg?auto=compress&cs=tinysrgb&w=800"
+    };
+    let current = destinations[0], saved = new Set(), booked = null, activeFilter = "all";
+
+    function setMode(mode) {
+      const stage = document.querySelector(".web-stage");
+      stage.classList.toggle("mobile-mode", mode === "mobile");
+      stage.classList.toggle("desktop-mode", mode !== "mobile");
+      document.getElementById("web-toggle").className = mode === "desktop"
+        ? "rounded-full px-4 py-2 text-sm font-bold bg-white text-blue-800 shadow-sm"
+        : "rounded-full px-4 py-2 text-sm font-bold text-slate-600";
+      document.getElementById("mobile-toggle").className = mode === "mobile"
+        ? "rounded-full px-4 py-2 text-sm font-bold bg-white text-blue-800 shadow-sm"
+        : "rounded-full px-4 py-2 text-sm font-bold text-slate-600";
+      document.getElementById("web-toggle").setAttribute("aria-pressed", mode === "desktop");
+      document.getElementById("mobile-toggle").setAttribute("aria-pressed", mode === "mobile");
+      renderMobile();
+    }
+
+    function goTo(id) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      if(id === "explore") renderExplore();
+      if(id === "detail") renderDetail();
+      if(id === "booking") renderSummary();
+      if(id === "dashboard") renderDashboard();
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    function openDetail(id) { current = destinations.find(d => d.id === id); goTo("detail"); }
+
+    function renderExplore() {
+      const query = document.getElementById("destination-search").value.toLowerCase();
+      const activity = document.getElementById("activity-search").value;
+      const list = destinations.filter(d =>
+        (activeFilter === "all" || d.category === activeFilter) &&
+        (!query || (d.name + d.overview).toLowerCase().includes(query)) &&
+        (!activity || d.category === activity || d.activities.includes(activity))
+      );
+      const holder = document.getElementById("explore-list");
+      holder.innerHTML = "";
+      list.forEach(d => {
+        const node = document.createElement("article");
+        node.className = "rounded-2xl border border-slate-100 p-4 shadow-sm flex gap-4";
+        node.innerHTML = `<img src="${d.img}" alt="" class="h-24 w-24 shrink-0 rounded-xl object-cover">
+          <div class="min-w-0">
+            <p class="text-xs font-extrabold uppercase text-lime-700">${d.category}</p>
+            <h3 class="mt-1 font-bold text-blue-950">${d.name}</h3>
+            <p class="mt-1 text-sm text-slate-600 line-clamp-2">${d.overview}</p>
+            <button type="button" class="mt-2 text-sm font-extrabold text-blue-800">View sample →</button>
+          </div>`;
+        node.querySelector("button").onclick = () => openDetail(d.id);
+        holder.appendChild(node);
+      });
+      document.getElementById("empty-results").classList.toggle("hidden", list.length > 0);
+      document.getElementById("search-status").textContent = list.length
+        ? `${list.length} sample destination${list.length === 1 ? "" : "s"} found` : "";
+    }
+
+    function renderDetail() {
+      document.getElementById("detail-title").textContent = current.name;
+      document.getElementById("detail-overview").textContent = current.overview;
+      document.getElementById("activity-list").textContent = current.activities;
+      document.getElementById("host-copy").textContent = current.host;
+      document.getElementById("price-copy").textContent = current.price;
+      document.getElementById("detail-image-main").src = current.img;
+      document.getElementById("detail-image-second").src = detailImages.second;
+      document.getElementById("detail-image-third").src = detailImages.third;
+      const btn = document.getElementById("save-button");
+      btn.classList.toggle("saved", saved.has(current.id));
+      btn.setAttribute("aria-label", saved.has(current.id) ? "Remove saved destination" : "Save destination");
+    }
+
+    function toggleSave() {
+      saved.has(current.id) ? saved.delete(current.id) : saved.add(current.id);
+      renderDetail();
+      showToast(saved.has(current.id) ? "Saved to your trip ideas" : "Removed from saved destinations");
+    }
+
+    function renderSummary() {
+      document.getElementById("summary-destination").textContent = current.name;
+      document.getElementById("summary-date").textContent = document.getElementById("booking-date").value || "Choose a demo date";
+      document.getElementById("summary-guests").textContent = document.getElementById("guests").value || "Choose guests";
+    }
+
+    ["booking-date","guests","booking-activity"].forEach(id =>
+      document.getElementById(id).addEventListener("change", renderSummary)
+    );
+
+    document.getElementById("search-form").addEventListener("submit", e => {
+      e.preventDefault();
+      activeFilter = "all";
+      document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.filter === "all"));
+      goTo("explore");
+    });
+
+    document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => {
+      activeFilter = c.dataset.filter;
+      document.querySelectorAll(".chip").forEach(x => x.classList.toggle("active", x === c));
+      renderExplore();
+    }));
+
+    document.getElementById("booking-form").addEventListener("submit", e => {
+      e.preventDefault();
+      const date = document.getElementById("booking-date").value;
+      const guests = document.getElementById("guests").value;
+      const activity = document.getElementById("booking-activity").value;
+      const name = document.getElementById("guest-name").value.trim();
+      const email = document.getElementById("guest-email").value.trim();
+      const err = document.getElementById("booking-error");
+      if(!date || !guests || !activity || !name || !email) {
+        err.textContent = "Please complete each field to continue with this demo booking.";
+        err.classList.remove("hidden");
+        return;
+      }
+      err.classList.add("hidden");
+      booked = {date, guests, activity, name, destination: current.name};
+      goTo("confirmation");
+      showToast("Booking prepared");
+    });
+
+    function renderDashboard() {
+      document.getElementById("upcoming-booking").textContent = booked
+        ? `${booked.destination} · ${booked.date} · ${booked.guests} · ${booked.activity} — Demo booking`
+        : "No upcoming demo bookings yet. Explore a destination to begin.";
+      const el = document.getElementById("saved-list");
+      el.innerHTML = saved.size
+        ? [...saved].map(id => `<div class="rounded-lg bg-white px-3 py-2">${destinations.find(d => d.id === id).name}</div>`).join("")
+        : "No saved destinations yet. Tap the heart on any sample listing.";
+    }
+
+    function mobileTab(tab) {
+      document.querySelectorAll(".mobile-view").forEach(v => v.classList.add("hidden"));
+      document.getElementById("mobile-" + tab).classList.remove("hidden");
+      const order = ["home","explore","bookings","profile"];
+      document.querySelectorAll(".bottom-nav").forEach((b, i) => b.classList.toggle("active", order[i] === tab));
+      renderMobile();
+    }
+
+    function renderMobile() {
+      const cards = destinations.slice(0, 3).map(d =>
+        `<button class="w-full rounded-2xl border border-slate-100 p-3 text-left flex gap-3 shadow-sm" onclick="setMode('desktop');openDetail('${d.id}')">
+          <img src="${d.img}" alt="" class="h-14 w-14 rounded-xl object-cover">
+          <span><b class="block text-sm text-blue-950">${d.name}</b><small class="text-slate-500">${d.category} · Demo</small></span>
+        </button>`
+      ).join("");
+      document.getElementById("mobile-feature-list").innerHTML = cards;
+      document.getElementById("mobile-explore-list").innerHTML = cards;
+      document.getElementById("mobile-booking-card").textContent = booked
+        ? `${booked.destination} · ${booked.date} · ${booked.guests}`
+        : "No demo booking yet. Explore an experience to plan your trip.";
+    }
+
+    function resetDemo() {
+      saved.clear();
+      booked = null;
+      document.getElementById("booking-form").reset();
+      activeFilter = "all";
+      goTo("home");
+      mobileTab("home");
+      showToast("Demo reset");
+    }
+
+    function showToast(message) {
+      const t = document.getElementById("toast");
+      t.textContent = message;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2200);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      renderMobile();
+      renderDashboard();
+    });
+  </script>
+</body>
+</html>
