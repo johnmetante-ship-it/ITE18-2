@@ -31,7 +31,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
 .phone {
   width: min(100%, 390px);
-  min-height: 690px;
+  height: 830px;
   border: 10px solid #162038;
   border-radius: 38px;
   overflow: hidden;
@@ -40,7 +40,11 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   position: relative;
   margin: 0 auto;
 }
-.mobile-content { padding-bottom: 82px; min-height: 680px; }
+.mobile-content {
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 82px;
+}
 .mobile-bottom {
   position: absolute;
   bottom: 0; left: 0; right: 0;
