@@ -3,9 +3,11 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useBookingStore } from '../stores/booking'
+import { useMarketplaceStore } from '../stores/marketplace'
 
 const auth = useAuthStore()
 const store = useBookingStore()
+const market = useMarketplaceStore()
 const router = useRouter()
 
 const form = reactive({ email: '' })
@@ -24,6 +26,13 @@ function submit() {
   auth.login({ email: form.email })
   store.toast('Welcome back!')
   router.push('/home')
+}
+
+function useDemo() {
+  const user = auth.seedDemoAccount()
+  market.seedDemoListing(user)
+  store.toast('Demo account loaded with a listed item')
+  router.push('/profile')
 }
 </script>
 
@@ -48,6 +57,14 @@ function submit() {
         <p v-if="error" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ error }}</p>
         <button type="submit" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #264ab3; color: #fff">Sign in</button>
       </form>
+
+      <div class="my-5 flex items-center gap-3">
+        <span class="h-px flex-1 bg-slate-200"></span>
+        <span class="text-xs font-bold text-slate-400">or</span>
+        <span class="h-px flex-1 bg-slate-200"></span>
+      </div>
+
+      <button type="button" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #a8dc2f; color: #18202a" @click="useDemo">Use demo account</button>
 
       <p class="mt-5 text-center text-sm text-slate-600">
         New to AgriSuroy?

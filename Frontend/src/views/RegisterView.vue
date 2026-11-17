@@ -8,7 +8,7 @@ const auth = useAuthStore()
 const store = useBookingStore()
 const router = useRouter()
 
-const form = reactive({ name: '', email: '', password: '' })
+const form = reactive({ name: '', email: '', password: '', phone: '', address: '', accountType: 'Personal' })
 const error = ref('')
 
 function submit() {
@@ -21,7 +21,7 @@ function submit() {
     return
   }
   error.value = ''
-  auth.register({ name: form.name, email: form.email })
+  auth.register({ name: form.name, email: form.email, phone: form.phone, address: form.address, accountType: form.accountType })
   store.toast(`Welcome to AgriSuroy, ${form.name.trim().split(' ')[0]}!`)
   router.push('/home')
 }
@@ -48,6 +48,20 @@ function submit() {
         <div>
           <label class="mb-2 block font-bold text-sm" for="reg-email">Email address</label>
           <input id="reg-email" v-model="form.email" type="email" autocomplete="email" class="w-full rounded-xl border border-slate-200 px-4 py-3" placeholder="you@example.com">
+        </div>
+        <div>
+          <label class="mb-2 block font-bold text-sm" for="reg-type">Account type</label>
+          <select id="reg-type" v-model="form.accountType" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            <option>Personal</option><option>Business / Corporation</option><option>Group / Organization</option>
+          </select>
+        </div>
+        <div>
+          <label class="mb-2 block font-bold text-sm" for="reg-phone">Contact number</label>
+          <input id="reg-phone" v-model="form.phone" type="tel" autocomplete="tel" class="w-full rounded-xl border border-slate-200 px-4 py-3" placeholder="+63 9XX XXX XXXX">
+        </div>
+        <div>
+          <label class="mb-2 block font-bold text-sm" for="reg-address">Address</label>
+          <input id="reg-address" v-model="form.address" type="text" autocomplete="street-address" class="w-full rounded-xl border border-slate-200 px-4 py-3" placeholder="Barangay, City/Municipality, Province">
         </div>
         <div>
           <label class="mb-2 block font-bold text-sm" for="reg-password">Password</label>

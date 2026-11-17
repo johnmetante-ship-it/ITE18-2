@@ -27,13 +27,39 @@ const error = ref('')
 
 // Guest-only mobile flow
 const guestView = ref('landing')
-const regForm = reactive({ name: '', email: '', password: '' })
+const regForm = reactive({ name: '', email: '', password: '', phone: '', address: '', accountType: 'Personal' })
 const loginForm = reactive({ email: '' })
 const authError = ref('')
+
+const initials = computed(() =>
+  (auth.user?.name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+)
 
 // Marketplace
 const marketForm = reactive({ name: '', category: 'Produce', price: '', stock: '', description: '' })
 const marketError = ref('')
+
+// Seller info
+const sellerInfo = ref(null)
+const sellerInitials = computed(() =>
+  (sellerInfo.value?.name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+)
+
+// Profile editing
+const profileForm = reactive({ name: '', email: '', phone: '', address: '', accountType: 'Personal', avatar: '' })
+const profileError = ref('')
 
 function refresh() {
   requestAnimationFrame(() => window.lucide?.createIcons?.())
@@ -50,6 +76,15 @@ function guestGo(viewName) {
 function buyNow(id) {
   if (market.buy(id)) store.toast('Purchased! This is a demo order.')
   else store.toast('That item is out of stock.')
+}
+
+function viewSeller(seller) {
+  sellerInfo.value = seller
+  view.value = 'seller'
+}
+
+function unlist(id) {
+  if (market.unlistItem(id)) store.toast('Item unlisted')
 }
 
 function submitListing() {
@@ -101,7 +136,7 @@ function submitRegister() {
     return
   }
   authError.value = ''
-  auth.register({ name: regForm.name, email: regForm.email })
+  auth.register({ name: regForm.name, email: regForm.email, phone: regForm.phone, address: regForm.address, accountType: regForm.accountType })
   view.value = 'home'
   guestView.value = 'landing'
   store.toast(`Welcome to AgriSuroy, ${regForm.name.trim().split(' ')[0]}!`)
@@ -131,6 +166,42 @@ function signOut() {
   guestView.value = 'landing'
   store.toast('Signed out')
   refresh()
+}
+
+function startEditProfile() {
+  profileForm.name = auth.user?.name || ''
+  profileForm.email = auth.user?.email || ''
+  profileForm.phone = auth.user?.phone || ''
+  profileForm.address = auth.user?.address || ''
+  profileForm.accountType = auth.user?.accountType || 'Personal'
+  profileForm.avatar = auth.user?.avatar || ''
+  profileError.value = ''
+  view.value = 'edit-profile'
+}
+
+function onAvatarChange(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    profileForm.avatar = reader.result
+  }
+  reader.readAsDataURL(file)
+}
+
+function saveProfile() {
+  if (!profileForm.name.trim() || !profileForm.email.trim()) {
+    profileError.value = 'Name and email are required.'
+    return
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileForm.email.trim())) {
+    profileError.value = 'Please enter a valid email address.'
+    return
+  }
+  profileError.value = ''
+  auth.updateProfile({ ...profileForm, avatar: profileForm.avatar || auth.user?.avatar || '' })
+  view.value = 'profile'
+  store.toast('Profile updated')
 }
 
 function reset() {
@@ -206,7 +277,7 @@ onMounted(refresh)
                 <img :src="item.img" alt="" class="h-14 w-14 rounded-xl object-cover">
                 <span class="min-w-0 flex-1">
                   <b class="block text-sm text-blue-950">{{ item.name }}</b>
-                  <small class="text-slate-500">{{ item.category }} · ₱{{ item.price }}</small>
+                  <small class="text-slate-500">{{ item.category }} · {{ item.seller.name }} · ₱{{ item.price }}</small>
                 </span>
                 <button type="button" class="shrink-0 rounded-lg px-3 py-2 text-xs font-extrabold" style="background: #a8dc2f; color: #18202a" @click="guestGo('register')">Register</button>
               </div>
@@ -228,6 +299,20 @@ onMounted(refresh)
               <div>
                 <label class="mb-2 block font-bold text-sm" for="m-reg-email">Email address</label>
                 <input id="m-reg-email" v-model="regForm.email" type="email" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+              </div>
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="m-reg-type">Account type</label>
+                <select id="m-reg-type" v-model="regForm.accountType" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+                  <option>Personal</option><option>Business / Corporation</option><option>Group / Organization</option>
+                </select>
+              </div>
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="m-reg-phone">Contact number</label>
+                <input id="m-reg-phone" v-model="regForm.phone" type="tel" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+              </div>
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="m-reg-address">Address</label>
+                <input id="m-reg-address" v-model="regForm.address" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3">
               </div>
               <div>
                 <label class="mb-2 block font-bold text-sm" for="m-reg-password">Password</label>
@@ -320,11 +405,44 @@ onMounted(refresh)
               <img :src="item.img" alt="" class="h-14 w-14 rounded-xl object-cover">
               <span class="min-w-0 flex-1">
                 <b class="block text-sm text-blue-950">{{ item.name }}</b>
-                <small class="text-slate-500">{{ item.category }} · {{ item.seller }}</small>
+                <small class="text-slate-500">{{ item.category }} · {{ item.seller.name }}</small>
                 <small class="block text-xs font-bold text-blue-900">₱{{ item.price }} · {{ item.stock > 0 ? `${item.stock} left` : 'Sold out' }}</small>
+                <button type="button" class="mt-1 text-xs font-extrabold text-blue-800" @click="viewSeller(item.seller)">View seller info</button>
               </span>
               <button type="button" class="shrink-0 rounded-lg px-3 py-2 text-xs font-extrabold" :disabled="item.stock <= 0" :class="item.stock > 0 ? '' : 'opacity-50'" style="background: #264ab3; color: #fff" @click="buyNow(item.id)">Buy</button>
             </div>
+          </div>
+        </div>
+
+        <!-- SELLER INFO -->
+        <div v-show="view === 'seller'" class="px-5">
+          <button type="button" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800" @click="view = 'market'">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>Back to marketplace
+          </button>
+          <div v-if="sellerInfo" class="mt-4">
+            <div class="flex items-center gap-3">
+              <img v-if="sellerInfo.avatar" :src="sellerInfo.avatar" class="h-12 w-12 shrink-0 rounded-full object-cover" alt="Seller photo">
+              <div v-else class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-blue-800 text-white font-extrabold">{{ sellerInitials }}</div>
+              <div class="min-w-0">
+                <h3 class="font-['Fraunces'] text-xl font-bold text-blue-950">{{ sellerInfo.name }}</h3>
+                <span class="text-xs font-extrabold" style="color: #6f9d10">{{ sellerInfo.accountType }}</span>
+              </div>
+            </div>
+
+            <dl class="mt-5 space-y-3">
+              <div class="rounded-xl bg-slate-50 p-3">
+                <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Email address</dt>
+                <dd class="mt-1 text-sm font-bold text-blue-950 break-words">{{ sellerInfo.email || 'Not provided' }}</dd>
+              </div>
+              <div class="rounded-xl bg-slate-50 p-3">
+                <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Contact number</dt>
+                <dd class="mt-1 text-sm font-bold text-blue-950">{{ sellerInfo.phone || 'Not provided' }}</dd>
+              </div>
+              <div class="rounded-xl bg-slate-50 p-3">
+                <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Address</dt>
+                <dd class="mt-1 text-sm font-bold text-blue-950">{{ sellerInfo.address || 'Not provided' }}</dd>
+              </div>
+            </dl>
           </div>
         </div>
 
@@ -483,16 +601,107 @@ onMounted(refresh)
 
         <!-- PROFILE -->
         <div v-show="view === 'profile'" class="px-5">
-          <h3 class="font-['Fraunces'] text-2xl font-bold text-blue-950">{{ auth.user.name }}</h3>
-          <p class="mt-1 text-sm text-slate-500">{{ auth.user.email }}</p>
-          <p class="mt-4 text-sm leading-relaxed text-slate-600">Relaxing farm stays, hands-on experiences, and cultural moments across Caraga. All listings in this prototype are demos.</p>
+          <div class="flex items-center gap-3">
+            <img v-if="auth.user.avatar" :src="auth.user.avatar" class="h-12 w-12 shrink-0 rounded-full object-cover" alt="Profile photo">
+            <div v-else class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-blue-800 text-white font-extrabold">{{ initials }}</div>
+            <div class="min-w-0">
+              <h3 class="font-['Fraunces'] text-xl font-bold text-blue-950">{{ auth.user.name }}</h3>
+              <span class="mt-1 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-extrabold" style="background: #ecfccb; color: #264ab3">{{ auth.user.accountType || 'Personal' }}</span>
+            </div>
+          </div>
+
+          <dl class="mt-5 space-y-3">
+            <div class="rounded-xl bg-slate-50 p-3">
+              <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Email address</dt>
+              <dd class="mt-1 text-sm font-bold text-blue-950 break-words">{{ auth.user.email || 'Not provided' }}</dd>
+            </div>
+            <div class="rounded-xl bg-slate-50 p-3">
+              <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Contact number</dt>
+              <dd class="mt-1 text-sm font-bold text-blue-950">{{ auth.user.phone || 'Not provided' }}</dd>
+            </div>
+            <div class="rounded-xl bg-slate-50 p-3">
+              <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Address</dt>
+              <dd class="mt-1 text-sm font-bold text-blue-950">{{ auth.user.address || 'Not provided' }}</dd>
+            </div>
+          </dl>
+
+          <div class="mt-5">
+            <div class="flex items-center justify-between gap-3">
+              <h4 class="font-bold text-blue-950">My listings</h4>
+              <button type="button" class="rounded-full px-3 py-1.5 text-xs font-extrabold" style="background: #264ab3; color: #fff" @click="view = 'list'">
+                {{ market.userListings.length ? 'List an item' : 'List now' }}
+              </button>
+            </div>
+            <div v-if="market.userListings.length" class="mt-2 space-y-2">
+              <div v-for="item in market.userListings" :key="item.id" class="flex items-center gap-3 rounded-xl bg-slate-50 p-3">
+                <img :src="item.img" class="h-10 w-10 rounded-lg object-cover" alt="">
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-bold text-blue-950">{{ item.name }}</p>
+                  <p class="text-xs text-slate-500">{{ item.category }} · {{ item.stock }} left</p>
+                </div>
+                <div class="flex flex-col items-end gap-1">
+                  <span class="text-sm font-extrabold text-blue-900">₱{{ item.price }}</span>
+                  <button type="button" class="rounded-full px-2 py-0.5 text-[10px] font-extrabold" style="background: #fee2e2; color: #b91c1c" @click="unlist(item.id)">Unlist</button>
+                </div>
+              </div>
+            </div>
+            <p v-else class="mt-2 text-sm text-slate-600">No listings yet.</p>
+          </div>
+
           <div class="mt-5 rounded-2xl bg-slate-50 p-4 text-left">
             <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color: #6f9d10">Connect with AgriSuroy</p>
             <p class="mt-2 text-sm font-bold text-blue-900" style="color: #264ab3">CARAGRISUROY@GMAIL.COM</p>
             <p class="mt-1 text-sm font-bold text-blue-800" style="color: #264ab3">WWW.AGRISUROY.COM</p>
           </div>
-          <button class="mt-6 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #a8dc2f; color: #18202a" @click="reset">Reset demo</button>
+          <button class="mt-6 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #264ab3; color: #fff" @click="startEditProfile">Edit profile</button>
+          <button class="mt-3 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #a8dc2f; color: #18202a" @click="reset">Reset demo</button>
           <button class="mt-3 w-full rounded-xl border border-slate-200 py-3 font-extrabold text-slate-600" type="button" @click="signOut">Sign out</button>
+        </div>
+
+        <!-- EDIT PROFILE -->
+        <div v-show="view === 'edit-profile'" class="px-5">
+          <button type="button" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800" @click="view = 'profile'">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>Back to profile
+          </button>
+          <h2 class="mt-3 font-['Fraunces'] text-2xl font-bold text-blue-950">Edit profile</h2>
+
+          <form class="mt-4 space-y-3" @submit.prevent="saveProfile">
+            <div class="flex items-center gap-3">
+              <img v-if="profileForm.avatar" :src="profileForm.avatar" class="h-12 w-12 rounded-full object-cover" alt="Avatar preview">
+              <div v-else class="grid h-12 w-12 place-items-center rounded-full bg-blue-800 text-white font-extrabold">{{ initials }}</div>
+              <label class="cursor-pointer">
+                <span class="inline-block rounded-xl px-3 py-2 text-xs font-extrabold" style="background: #ecfccb; color: #264ab3">Choose photo</span>
+                <input type="file" accept="image/*" class="hidden" @change="onAvatarChange">
+              </label>
+            </div>
+
+            <div>
+              <label class="mb-2 block font-bold text-sm" for="mpf-name">Name</label>
+              <input id="mpf-name" v-model="profileForm.name" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            </div>
+            <div>
+              <label class="mb-2 block font-bold text-sm" for="mpf-type">Account type</label>
+              <select id="mpf-type" v-model="profileForm.accountType" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+                <option>Personal</option><option>Business / Corporation</option><option>Group / Organization</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-2 block font-bold text-sm" for="mpf-email">Email address</label>
+              <input id="mpf-email" v-model="profileForm.email" type="email" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            </div>
+            <div>
+              <label class="mb-2 block font-bold text-sm" for="mpf-phone">Contact number</label>
+              <input id="mpf-phone" v-model="profileForm.phone" type="tel" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            </div>
+            <div>
+              <label class="mb-2 block font-bold text-sm" for="mpf-address">Address</label>
+              <input id="mpf-address" v-model="profileForm.address" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            </div>
+
+            <p v-if="profileError" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ profileError }}</p>
+
+            <button type="submit" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #264ab3; color: #fff">Save changes</button>
+          </form>
         </div>
         </template>
       </div>

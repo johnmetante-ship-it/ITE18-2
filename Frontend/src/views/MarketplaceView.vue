@@ -1,4 +1,5 @@
 <script setup>
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useBookingStore } from '../stores/booking'
@@ -8,6 +9,26 @@ const auth = useAuthStore()
 const store = useBookingStore()
 const market = useMarketplaceStore()
 const router = useRouter()
+
+const sellerInfo = ref(null)
+
+const sellerInitials = computed(() =>
+  (sellerInfo.value?.name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+)
+
+function viewSeller(seller) {
+  sellerInfo.value = seller
+}
+
+function closeSeller() {
+  sellerInfo.value = null
+}
 
 function buy(id) {
   if (market.buy(id)) {
@@ -66,7 +87,10 @@ function buy(id) {
           </div>
           <h3 class="mt-1 font-bold text-lg text-blue-950">{{ item.name }}</h3>
           <p class="mt-2 text-sm text-slate-600">{{ item.description }}</p>
-          <p class="mt-2 text-xs font-bold text-slate-500">Seller: {{ item.seller }}</p>
+          <div class="mt-2 flex items-center justify-between gap-2">
+            <p class="text-xs font-bold text-slate-500">Seller: {{ item.seller.name }}</p>
+            <button type="button" class="text-xs font-extrabold text-blue-800 hover:underline" @click="viewSeller(item.seller)">View seller info</button>
+          </div>
           <div class="mt-auto pt-4 flex items-center justify-between gap-3">
             <span class="font-extrabold text-blue-900">₱{{ item.price }}</span>
             <button
@@ -101,11 +125,41 @@ function buy(id) {
           <img :src="p.img" alt="" class="h-10 w-10 rounded-lg object-cover">
           <div class="min-w-0 flex-1">
             <p class="font-bold text-sm text-blue-950">{{ p.name }}</p>
-            <p class="text-xs text-slate-500">{{ p.seller }} · demo purchase</p>
+            <p class="text-xs text-slate-500">{{ p.seller.name }} · demo purchase</p>
           </div>
           <span class="font-extrabold text-blue-900">₱{{ p.price }}</span>
         </div>
       </div>
     </section>
+
+    <div v-if="sellerInfo" class="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" @click.self="closeSeller">
+      <div class="w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl">
+        <div class="flex items-center gap-3">
+          <img v-if="sellerInfo.avatar" :src="sellerInfo.avatar" class="h-12 w-12 shrink-0 rounded-full object-cover" alt="Seller photo">
+          <div v-else class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-blue-800 text-white font-extrabold">{{ sellerInitials }}</div>
+          <div class="min-w-0">
+            <h3 class="font-bold text-blue-950">{{ sellerInfo.name }}</h3>
+            <span class="text-xs font-extrabold" style="color: #6f9d10">{{ sellerInfo.accountType }}</span>
+          </div>
+        </div>
+
+        <dl class="mt-5 space-y-3">
+          <div class="rounded-xl bg-slate-50 p-3">
+            <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Email address</dt>
+            <dd class="mt-1 text-sm font-bold text-blue-950 break-words">{{ sellerInfo.email || 'Not provided' }}</dd>
+          </div>
+          <div class="rounded-xl bg-slate-50 p-3">
+            <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Contact number</dt>
+            <dd class="mt-1 text-sm font-bold text-blue-950">{{ sellerInfo.phone || 'Not provided' }}</dd>
+          </div>
+          <div class="rounded-xl bg-slate-50 p-3">
+            <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Address</dt>
+            <dd class="mt-1 text-sm font-bold text-blue-950">{{ sellerInfo.address || 'Not provided' }}</dd>
+          </div>
+        </dl>
+
+        <button type="button" class="mt-6 w-full rounded-xl py-3 font-extrabold" style="background: #264ab3; color: #fff" @click="closeSeller">Close</button>
+      </div>
+    </div>
   </div>
 </template>
