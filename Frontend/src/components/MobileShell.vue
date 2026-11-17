@@ -1,7 +1,9 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
+import { useAuthStore } from '../stores/auth'
 import { useBookingStore } from '../stores/booking'
 
+const auth = useAuthStore()
 const store = useBookingStore()
 
 const view = ref('home')
@@ -20,8 +22,22 @@ const all = computed(() => store.destinations)
 const form = reactive({ date: '', guests: '', activity: '', name: '', email: '' })
 const error = ref('')
 
+// Guest-only mobile flow
+const guestView = ref('landing')
+const regForm = reactive({ name: '', email: '', password: '' })
+const loginForm = reactive({ email: '' })
+const authError = ref('')
+
+function refresh() {
+  requestAnimationFrame(() => window.lucide?.createIcons?.())
+}
+
 function go(viewName) {
   view.value = viewName
+}
+
+function guestGo(viewName) {
+  guestView.value = viewName
 }
 
 function openDetail(id) {
@@ -52,6 +68,48 @@ function submitBooking() {
   store.toast('Booking prepared')
 }
 
+function submitRegister() {
+  if (!regForm.name.trim() || !regForm.email.trim() || !regForm.password) {
+    authError.value = 'Please fill in your name, email, and a password to continue.'
+    return
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regForm.email.trim())) {
+    authError.value = 'Please enter a valid email address.'
+    return
+  }
+  authError.value = ''
+  auth.register({ name: regForm.name, email: regForm.email })
+  view.value = 'home'
+  guestView.value = 'landing'
+  store.toast(`Welcome to AgriSuroy, ${regForm.name.trim().split(' ')[0]}!`)
+  refresh()
+}
+
+function submitLogin() {
+  if (!loginForm.email.trim()) {
+    authError.value = 'Please enter your email address to sign in.'
+    return
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.email.trim())) {
+    authError.value = 'Please enter a valid email address.'
+    return
+  }
+  authError.value = ''
+  auth.login({ email: loginForm.email })
+  view.value = 'home'
+  guestView.value = 'landing'
+  store.toast('Welcome back!')
+  refresh()
+}
+
+function signOut() {
+  auth.logout()
+  view.value = 'home'
+  guestView.value = 'landing'
+  store.toast('Signed out')
+  refresh()
+}
+
 function reset() {
   store.reset()
   Object.assign(form, { date: '', guests: '', activity: '', name: '', email: '' })
@@ -60,13 +118,114 @@ function reset() {
   store.toast('Demo reset')
 }
 
-onMounted(() => requestAnimationFrame(() => window.lucide?.createIcons?.()))
+onMounted(refresh)
 </script>
 
 <template>
   <section class="mx-auto">
     <div class="phone">
       <div class="mobile-content">
+        <!-- GUEST MOBILE EXPERIENCE -->
+        <template v-if="!auth.isRegistered">
+          <div class="flex items-center justify-between p-5">
+            <div>
+              <p class="text-[10px] font-extrabold text-blue-800" style="color: #264ab3">TARPHA CORP.</p>
+              <h2 class="text-lg font-extrabold text-blue-950">AgriSuroy</h2>
+            </div>
+            <button type="button" class="rounded-full border border-slate-200 px-3 py-2 text-xs font-extrabold text-blue-800" @click="guestGo('login')">Sign in</button>
+          </div>
+
+          <div v-show="guestView === 'landing'" class="px-5">
+            <img loading="lazy" class="h-40 w-full rounded-3xl object-cover" src="https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Rice field and mountain landscape">
+            <p class="mt-4 font-['Fraunces'] text-2xl font-bold text-blue-950">Discover nature, one local story at a time.</p>
+            <p class="mt-2 text-sm text-slate-600">Browse Caraga experiences as a guest. Create a free account to save and book your trip.</p>
+            <button class="mt-4 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #264ab3; color: #fff" @click="guestGo('register')">Create free account</button>
+            <button class="mt-3 w-full rounded-xl border border-blue-200 py-3 font-extrabold text-blue-800" type="button" @click="guestGo('browse')">Browse as guest</button>
+
+            <h3 class="mt-7 font-bold text-blue-950">Featured samples</h3>
+            <div class="mt-3 space-y-3">
+              <button v-for="d in all.slice(0, 3)" :key="d.id" class="w-full rounded-2xl border border-slate-100 p-3 text-left flex gap-3 shadow-sm" @click="guestGo('register')">
+                <img :src="d.img" alt="" class="h-14 w-14 rounded-xl object-cover">
+                <span>
+                  <b class="block text-sm text-blue-950">{{ d.name }}</b>
+                  <small class="text-slate-500">{{ d.category }} · Register to view</small>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div v-show="guestView === 'browse'" class="px-5">
+            <button type="button" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800" @click="guestGo('landing')">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>Back
+            </button>
+            <h3 class="mt-3 font-['Fraunces'] text-2xl font-bold text-blue-950">Explore Caraga</h3>
+            <p class="mt-2 text-sm text-slate-600">Browse sample experiences. Register to unlock full details and booking.</p>
+            <div class="mt-4 space-y-3">
+              <button v-for="d in all" :key="d.id" class="w-full rounded-2xl border border-slate-100 p-3 text-left flex gap-3 shadow-sm" @click="guestGo('register')">
+                <img :src="d.img" alt="" class="h-14 w-14 rounded-xl object-cover">
+                <span>
+                  <b class="block text-sm text-blue-950">{{ d.name }}</b>
+                  <small class="text-slate-500">{{ d.category }} · {{ d.overview }}</small>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div v-show="guestView === 'register'" class="px-5">
+            <button type="button" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800" @click="guestGo('landing')">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>Back
+            </button>
+            <h2 class="mt-3 font-['Fraunces'] text-2xl font-bold text-blue-950">Create your free account</h2>
+            <p class="mt-2 text-sm text-slate-600">Save destinations and plan demo bookings across Caraga.</p>
+
+            <form class="mt-5 space-y-4" @submit.prevent="submitRegister">
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="m-reg-name">Full name</label>
+                <input id="m-reg-name" v-model="regForm.name" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+              </div>
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="m-reg-email">Email address</label>
+                <input id="m-reg-email" v-model="regForm.email" type="email" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+              </div>
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="m-reg-password">Password</label>
+                <input id="m-reg-password" v-model="regForm.password" type="password" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+              </div>
+              <p v-if="authError" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ authError }}</p>
+              <button type="submit" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #264ab3; color: #fff">Create account</button>
+            </form>
+
+            <p class="mt-5 text-center text-sm text-slate-600">
+              Already have an account?
+              <button type="button" class="font-bold text-blue-800" @click="guestGo('login')">Sign in</button>
+            </p>
+          </div>
+
+          <div v-show="guestView === 'login'" class="px-5">
+            <button type="button" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800" @click="guestGo('landing')">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>Back
+            </button>
+            <h2 class="mt-3 font-['Fraunces'] text-2xl font-bold text-blue-950">Welcome back</h2>
+            <p class="mt-2 text-sm text-slate-600">Sign in to continue planning your Caraga trip.</p>
+
+            <form class="mt-5 space-y-4" @submit.prevent="submitLogin">
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="m-login-email">Email address</label>
+                <input id="m-login-email" v-model="loginForm.email" type="email" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+              </div>
+              <p v-if="authError" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ authError }}</p>
+              <button type="submit" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #264ab3; color: #fff">Sign in</button>
+            </form>
+
+            <p class="mt-5 text-center text-sm text-slate-600">
+              New to AgriSuroy?
+              <button type="button" class="font-bold text-blue-800" @click="guestGo('register')">Create an account</button>
+            </p>
+          </div>
+        </template>
+
+        <!-- REGISTERED MOBILE EXPERIENCE -->
+        <template v-else>
         <div class="flex items-center justify-between p-5">
           <div>
             <p class="text-[10px] font-extrabold text-blue-800" style="color: #264ab3">TARPHA CORP.</p>
@@ -227,18 +386,21 @@ onMounted(() => requestAnimationFrame(() => window.lucide?.createIcons?.()))
 
         <!-- PROFILE -->
         <div v-show="view === 'profile'" class="px-5">
-          <h3 class="font-['Fraunces'] text-2xl font-bold text-blue-950">About AgriSuroy</h3>
-          <p class="mt-3 text-sm leading-relaxed text-slate-600">Relaxing farm stays, hands-on experiences, and cultural moments across Caraga. All listings in this prototype are demos.</p>
+          <h3 class="font-['Fraunces'] text-2xl font-bold text-blue-950">{{ auth.user.name }}</h3>
+          <p class="mt-1 text-sm text-slate-500">{{ auth.user.email }}</p>
+          <p class="mt-4 text-sm leading-relaxed text-slate-600">Relaxing farm stays, hands-on experiences, and cultural moments across Caraga. All listings in this prototype are demos.</p>
           <div class="mt-5 rounded-2xl bg-slate-50 p-4 text-left">
             <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color: #6f9d10">Connect with AgriSuroy</p>
             <p class="mt-2 text-sm font-bold text-blue-900" style="color: #264ab3">CARAGRISUROY@GMAIL.COM</p>
             <p class="mt-1 text-sm font-bold text-blue-800" style="color: #264ab3">WWW.AGRISUROY.COM</p>
           </div>
           <button class="mt-6 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #a8dc2f; color: #18202a" @click="reset">Reset demo</button>
+          <button class="mt-3 w-full rounded-xl border border-slate-200 py-3 font-extrabold text-slate-600" type="button" @click="signOut">Sign out</button>
         </div>
+        </template>
       </div>
 
-      <nav v-show="isPrimary" class="mobile-bottom" aria-label="Mobile app navigation">
+      <nav v-show="isPrimary && auth.isRegistered" class="mobile-bottom" aria-label="Mobile app navigation">
         <button
           v-for="t in tabs"
           :key="t.key"
