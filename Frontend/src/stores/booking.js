@@ -3,17 +3,18 @@ import { ref, computed } from 'vue'
 
 export const useBookingStore = defineStore('booking', () => {
   const destinations = ref([
-    { id: 'farm', name: 'Sibagat Farm Stay', category: 'Farm Stay', img: 'https://images.pexels.com/photos/36802871/pexels-photo-36802871.jpeg?auto=compress&cs=tinysrgb&w=800', overview: 'A slow, restorative farm escape with garden walks, simple meals, and a welcoming countryside rhythm.', activities: 'Farm walk · Seedling session', host: 'Hosted by a community farm collective in Caraga.', price: 'from ₱1,200 / guest' },
-    { id: 'rice', name: 'Rice Field Trails', category: 'Nature', img: 'https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800', overview: 'Follow green field paths and learn how local growing seasons shape everyday life.', activities: 'Rice-field tour · Nature walk', host: 'Hosted by a local guide community in Caraga.', price: 'Demo from ₱850 / guest' },
-    { id: 'mountain', name: 'Lakewood Mountain View', category: 'Adventure', img: 'https://images.pexels.com/photos/12029295/pexels-photo-12029295.jpeg?auto=compress&cs=tinysrgb&w=800', overview: 'A cool early-morning viewpoint journey for travelers seeking wide landscapes and quiet stories.', activities: 'Viewpoint hike · Picnic stop', host: 'Hosted by an upland guide community in Caraga.', price: 'Demo from ₱950 / guest' },
-    { id: 'culture', name: 'Caraga Flavors & Stories', category: 'Food', img: 'https://images.pexels.com/photos/36499543/pexels-photo-36499543.jpeg?auto=compress&cs=tinysrgb&w=800', overview: 'Taste locally inspired dishes and hear stories that celebrate homegrown ingredients.', activities: 'Food tasting · Story circle', host: 'Hosted by a food and culture collective in Caraga.', price: 'Demo from ₱700 / guest' },
-    { id: 'culture2', name: 'Community Culture Walk', category: 'Culture', img: 'https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800', overview: 'A gentle community-led walk centered on craft, connection, and local perspective.', activities: 'Craft visit · Community walk', host: 'Hosted by a cultural community in Caraga.', price: 'Demo from ₱650 / guest' },
+    { id: 'mayapay', name: 'Mount Mayapay', category: 'Adventure', img: 'https://images.pexels.com/photos/12029295/pexels-photo-12029295.jpeg?auto=compress&cs=tinysrgb&w=800', overview: 'A 675-meter mountain east of Butuan City with wide views over the Agusan Valley. Its name is linked to the ancient Majapahit Empire that once influenced the region.', activities: 'Viewpoint hike · Sunrise trek', host: 'Hosted by local trek guides in Butuan City.', price: 'from ₱450 / guest' },
+    { id: 'bood', name: 'Bood Promontory Eco Park', category: 'Nature', img: 'https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800', overview: 'A historic wooded hill in Barangay Pinamanculan believed to be where Magellan\'s men celebrated the first Catholic Mass on Philippine soil in 1521, overlooking Butuan Bay and the Masao River.', activities: 'Heritage walk · Tree park stroll', host: 'Managed by the Butuan City local government.', price: 'from ₱200 / guest' },
+    { id: 'balangay', name: 'Balangay Shrine Museum', category: 'Culture', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Golden_Tara_-_panoramio.jpg?width=800', overview: 'The graveyard of Balangay 1, a wooden plank boat dated to 320 AD, plus nine more ancient balangay boats excavated in Barangay Libertad — icons of Butuan\'s seafaring past.', activities: 'Museum tour · Archaeological site visit', host: 'National Museum of the Philippines — Butuan branch.', price: 'from ₱50 / guest' },
+    { id: 'agusan-river', name: 'Agusan River Cruise', category: 'Nature', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/MacapagalBridge.jpg?width=800', overview: 'Cruise the Agusan River — the widest and most navigable river in Mindanao — past the cable-stayed Macapagal Bridge and the city\'s riverine communities.', activities: 'River cruise · Bridge sighting · Birdwatching', host: 'Hosted by community river guides in Butuan.', price: 'from ₱600 / guest' },
+    { id: 'lake-mainit', name: 'Lake Mainit Eco Escape', category: 'Nature', img: 'https://images.pexels.com/photos/35669317/pexels-photo-35669317.jpeg?auto=compress&cs=tinysrgb&w=800', overview: 'The Philippines\' fourth largest lake (17,060 hectares), shared by Agusan del Norte and Surigao del Norte and ringed by quiet lakeside communities near Jabonga.', activities: 'Lakeside walk · Community visit', host: 'Hosted by lakeside communities in Jabonga.', price: 'from ₱500 / guest' },
+    { id: 'palagsing', name: 'Palagsing & Unaw Food Trail', category: 'Food', img: 'https://images.pexels.com/photos/36499543/pexels-photo-36499543.jpeg?auto=compress&cs=tinysrgb&w=800', overview: 'Taste palagsing — a chewy delicacy of lumbiya (sago) starch, young coconut, and brown sugar wrapped in banana leaves — and other unaw-based treats in old Banza, Butuan.', activities: 'Food tasting · Market walk', host: 'Hosted by Banza food makers in Butuan.', price: 'from ₱350 / guest' },
   ])
 
   const detailImages = {
-    main: 'https://images.pexels.com/photos/35669317/pexels-photo-35669317.jpeg?auto=compress&cs=tinysrgb&w=1280',
-    second: 'https://images.pexels.com/photos/27138224/pexels-photo-27138224.jpeg?auto=compress&cs=tinysrgb&w=800',
-    third: 'https://images.pexels.com/photos/36499543/pexels-photo-36499543.jpeg?auto=compress&cs=tinysrgb&w=800',
+    main: 'https://images.pexels.com/photos/12029295/pexels-photo-12029295.jpeg?auto=compress&cs=tinysrgb&w=1280',
+    second: 'https://commons.wikimedia.org/wiki/Special:FilePath/MacapagalBridge.jpg?width=800',
+    third: 'https://commons.wikimedia.org/wiki/Special:FilePath/Guingona_Park_Butuan.jpg?width=800',
   }
 
   const saved = ref(new Set())
@@ -70,6 +71,12 @@ export const useBookingStore = defineStore('booking', () => {
     searchActivity.value = ''
   }
 
+  function clearFilters() {
+    activeFilter.value = 'all'
+    searchQuery.value = ''
+    searchActivity.value = ''
+  }
+
   return {
     destinations,
     detailImages,
@@ -91,5 +98,6 @@ export const useBookingStore = defineStore('booking', () => {
     confirmBooking,
     toast,
     reset,
+    clearFilters,
   }
 })

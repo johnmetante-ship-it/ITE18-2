@@ -2,18 +2,21 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useBookingStore } from '../stores/booking'
+import { useMarketplaceStore } from '../stores/marketplace'
 
 const auth = useAuthStore()
 const store = useBookingStore()
+const market = useMarketplaceStore()
 
 const view = ref('home')
 const tabs = [
   { key: 'home', icon: 'house', label: 'Home' },
   { key: 'explore', icon: 'compass', label: 'Explore' },
+  { key: 'market', icon: 'store', label: 'Market' },
   { key: 'bookings', icon: 'calendar-days', label: 'Bookings' },
   { key: 'profile', icon: 'circle-user-round', label: 'Profile' },
 ]
-const primary = ['home', 'explore', 'bookings', 'profile']
+const primary = ['home', 'explore', 'market', 'bookings', 'profile']
 const isPrimary = computed(() => primary.includes(view.value))
 
 const current = computed(() => store.current)
@@ -28,6 +31,10 @@ const regForm = reactive({ name: '', email: '', password: '' })
 const loginForm = reactive({ email: '' })
 const authError = ref('')
 
+// Marketplace
+const marketForm = reactive({ name: '', category: 'Produce', price: '', stock: '', description: '' })
+const marketError = ref('')
+
 function refresh() {
   requestAnimationFrame(() => window.lucide?.createIcons?.())
 }
@@ -38,6 +45,22 @@ function go(viewName) {
 
 function guestGo(viewName) {
   guestView.value = viewName
+}
+
+function buyNow(id) {
+  if (market.buy(id)) store.toast('Purchased! This is a demo order.')
+  else store.toast('That item is out of stock.')
+}
+
+function submitListing() {
+  if (!marketForm.name.trim() || !marketForm.price || !marketForm.description.trim()) {
+    marketError.value = 'Please provide a name, price, and description for your item.'
+    return
+  }
+  marketError.value = ''
+  market.listItem(marketForm)
+  view.value = 'market'
+  store.toast('Your item is now listed!')
 }
 
 function openDetail(id) {
@@ -140,7 +163,8 @@ onMounted(refresh)
             <p class="mt-4 font-['Fraunces'] text-2xl font-bold text-blue-950">Discover nature, one local story at a time.</p>
             <p class="mt-2 text-sm text-slate-600">Browse Caraga experiences as a guest. Create a free account to save and book your trip.</p>
             <button class="mt-4 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #264ab3; color: #fff" @click="guestGo('register')">Create free account</button>
-            <button class="mt-3 w-full rounded-xl border border-blue-200 py-3 font-extrabold text-blue-800" type="button" @click="guestGo('browse')">Browse as guest</button>
+            <button class="mt-3 w-full rounded-xl border border-blue-200 py-3 font-extrabold text-blue-800" type="button" @click="guestGo('browse')">Browse experiences</button>
+            <button class="mt-3 w-full rounded-xl border border-blue-200 py-3 font-extrabold text-blue-800" type="button" @click="guestGo('market')">Browse marketplace</button>
 
             <h3 class="mt-7 font-bold text-blue-950">Featured samples</h3>
             <div class="mt-3 space-y-3">
@@ -168,6 +192,24 @@ onMounted(refresh)
                   <small class="text-slate-500">{{ d.category }} · {{ d.overview }}</small>
                 </span>
               </button>
+            </div>
+          </div>
+
+          <div v-show="guestView === 'market'" class="px-5">
+            <button type="button" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800" @click="guestGo('landing')">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>Back
+            </button>
+            <h3 class="mt-3 font-['Fraunces'] text-2xl font-bold text-blue-950">Marketplace</h3>
+            <p class="mt-2 text-sm text-slate-600">Browse Caraga farm &amp; craft goods. Register to purchase or list items.</p>
+            <div class="mt-4 space-y-3">
+              <div v-for="item in market.all" :key="item.id" class="rounded-2xl border border-slate-100 p-3 flex gap-3 shadow-sm">
+                <img :src="item.img" alt="" class="h-14 w-14 rounded-xl object-cover">
+                <span class="min-w-0 flex-1">
+                  <b class="block text-sm text-blue-950">{{ item.name }}</b>
+                  <small class="text-slate-500">{{ item.category }} · ₱{{ item.price }}</small>
+                </span>
+                <button type="button" class="shrink-0 rounded-lg px-3 py-2 text-xs font-extrabold" style="background: #a8dc2f; color: #18202a" @click="guestGo('register')">Register</button>
+              </div>
             </div>
           </div>
 
@@ -265,6 +307,61 @@ onMounted(refresh)
               </span>
             </button>
           </div>
+        </div>
+
+        <!-- MARKET -->
+        <div v-show="view === 'market'" class="px-5">
+          <div class="flex items-center justify-between gap-3">
+            <h3 class="font-['Fraunces'] text-2xl font-bold text-blue-950">Marketplace</h3>
+            <button type="button" class="rounded-full px-3 py-2 text-xs font-extrabold" style="background: #264ab3; color: #fff" @click="view = 'list'">List item</button>
+          </div>
+          <div class="mt-4 space-y-3">
+            <div v-for="item in market.all" :key="item.id" class="rounded-2xl border border-slate-100 p-3 flex gap-3 shadow-sm">
+              <img :src="item.img" alt="" class="h-14 w-14 rounded-xl object-cover">
+              <span class="min-w-0 flex-1">
+                <b class="block text-sm text-blue-950">{{ item.name }}</b>
+                <small class="text-slate-500">{{ item.category }} · {{ item.seller }}</small>
+                <small class="block text-xs font-bold text-blue-900">₱{{ item.price }} · {{ item.stock > 0 ? `${item.stock} left` : 'Sold out' }}</small>
+              </span>
+              <button type="button" class="shrink-0 rounded-lg px-3 py-2 text-xs font-extrabold" :disabled="item.stock <= 0" :class="item.stock > 0 ? '' : 'opacity-50'" style="background: #264ab3; color: #fff" @click="buyNow(item.id)">Buy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIST -->
+        <div v-show="view === 'list'" class="px-5">
+          <button type="button" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800" @click="view = 'market'">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>Back to marketplace
+          </button>
+          <h2 class="mt-3 font-['Fraunces'] text-2xl font-bold text-blue-950">List an item</h2>
+          <form class="mt-4 space-y-3" @submit.prevent="submitListing">
+            <div>
+              <label class="mb-2 block font-bold text-sm" for="ml-name">Item name</label>
+              <input id="ml-name" v-model="marketForm.name" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            </div>
+            <div>
+              <label class="mb-2 block font-bold text-sm" for="ml-category">Category</label>
+              <select id="ml-category" v-model="marketForm.category" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+                <option>Produce</option><option>Food</option><option>Crafts</option><option>Plants</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="ml-price">Price (₱)</label>
+                <input id="ml-price" v-model="marketForm.price" type="number" min="1" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+              </div>
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="ml-stock">Stock</label>
+                <input id="ml-stock" v-model="marketForm.stock" type="number" min="1" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+              </div>
+            </div>
+            <div>
+              <label class="mb-2 block font-bold text-sm" for="ml-desc">Description</label>
+              <textarea id="ml-desc" v-model="marketForm.description" rows="3" class="w-full rounded-xl border border-slate-200 px-4 py-3"></textarea>
+            </div>
+            <p v-if="marketError" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ marketError }}</p>
+            <button type="submit" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #264ab3; color: #fff">Publish listing</button>
+          </form>
         </div>
 
         <!-- DETAIL -->

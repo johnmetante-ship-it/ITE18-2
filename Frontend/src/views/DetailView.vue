@@ -41,8 +41,8 @@ function toggleSave() {
     <div class="px-7 py-6 md:px-14 md:grid md:grid-cols-2 md:gap-10">
       <div class="grid grid-cols-3 gap-2">
         <img loading="lazy" class="col-span-3 h-64 w-full rounded-3xl object-cover" :src="current.img" :alt="current.name">
-        <img loading="lazy" class="h-24 w-full rounded-xl object-cover" :src="store.detailImages.second" alt="Green terraced rice fields">
-        <img loading="lazy" class="col-span-2 h-24 w-full rounded-xl object-cover" :src="store.detailImages.third" alt="Filipino street vendors serving traditional food">
+        <img loading="lazy" class="h-24 w-full rounded-xl object-cover" :src="store.detailImages.second" alt="Macapagal Bridge over the Agusan River">
+        <img loading="lazy" class="col-span-2 h-24 w-full rounded-xl object-cover" :src="store.detailImages.third" alt="Guingona Park in Butuan">
       </div>
 
       <div class="pt-7 md:pt-0">

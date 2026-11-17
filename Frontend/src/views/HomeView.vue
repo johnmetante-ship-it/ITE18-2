@@ -44,7 +44,7 @@ function search() {
             <label for="activity-search" class="sr-only">Choose activity</label>
             <select id="activity-search" v-model="activity" class="w-full rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-800">
               <option value="">Any activity</option>
-              <option>Farm Stay</option><option>Nature</option><option>Culture</option><option>Food</option><option>Adventure</option>
+              <option>Nature</option><option>Culture</option><option>Food</option><option>Adventure</option>
             </select>
           </div>
           <div>

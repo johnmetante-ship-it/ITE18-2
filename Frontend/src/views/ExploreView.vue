@@ -6,17 +6,33 @@ import { useBookingStore } from '../stores/booking'
 const store = useBookingStore()
 const router = useRouter()
 
-const filters = ['all', 'Farm Stay', 'Nature', 'Culture', 'Food', 'Adventure']
+const filters = computed(() => ['all', ...new Set(store.destinations.map((d) => d.category))])
 
 const list = computed(() => {
   const q = store.searchQuery.toLowerCase()
-  const act = store.searchActivity
+
+  const validFilter =
+    store.activeFilter === 'all' || store.destinations.some((d) => d.category === store.activeFilter)
+      ? store.activeFilter
+      : 'all'
+
+  const validActivity =
+    store.searchActivity &&
+    (store.destinations.some((d) => d.category === store.searchActivity) ||
+      store.destinations.some((d) => d.activities.includes(store.searchActivity)))
+      ? store.searchActivity
+      : ''
+
   return store.destinations.filter((d) =>
-    (store.activeFilter === 'all' || d.category === store.activeFilter) &&
+    (validFilter === 'all' || d.category === validFilter) &&
     (!q || (d.name + d.overview).toLowerCase().includes(q)) &&
-    (!act || d.category === act || d.activities.includes(act))
+    (!validActivity || d.category === validActivity || d.activities.includes(validActivity))
   )
 })
+
+function clearFilters() {
+  store.clearFilters()
+}
 </script>
 
 <template>
@@ -60,6 +76,7 @@ const list = computed(() => {
 
     <div v-if="!list.length" class="mt-5 rounded-2xl bg-slate-50 p-8 text-center">
       <p class="text-slate-600">No sample experiences match that search. Try another category or keyword.</p>
+      <button type="button" class="mt-4 rounded-full px-5 py-2 text-sm font-extrabold" style="background: #264ab3; color: #fff" @click="clearFilters">Clear filters</button>
     </div>
   </div>
 </template>
