@@ -105,47 +105,7 @@ function deleteAccount() {
             </div>
           </div>
 
-          <form v-if="editing" class="mt-4 space-y-2" @submit.prevent="save">
-            <div class="flex items-center gap-3">
-              <img v-if="form.avatar" :src="form.avatar" class="h-14 w-14 rounded-full object-cover" alt="Avatar preview">
-              <div v-else class="grid h-14 w-14 place-items-center rounded-full bg-blue-800 text-lg font-extrabold text-white">{{ initials }}</div>
-              <label class="cursor-pointer">
-                <span class="inline-block rounded-xl px-3 py-2 text-sm font-extrabold" style="background: #ecfccb; color: #264ab3">Choose photo</span>
-                <input type="file" accept="image/*" class="hidden" @change="onFileChange">
-              </label>
-            </div>
-
-            <div>
-              <label class="mb-1 block text-sm font-bold" for="pf-name">Name</label>
-              <input id="pf-name" v-model="form.name" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2.5">
-            </div>
-            <div>
-              <label class="mb-1 block text-sm font-bold" for="pf-type">Account type</label>
-              <select id="pf-type" v-model="form.accountType" class="w-full rounded-xl border border-slate-200 px-3 py-2.5">
-                <option>Personal</option><option>Business / Corporation</option><option>Group / Organization</option>
-              </select>
-            </div>
-            <div>
-              <label class="mb-1 block text-sm font-bold" for="pf-email">Email address</label>
-              <input id="pf-email" v-model="form.email" type="email" class="w-full rounded-xl border border-slate-200 px-3 py-2.5">
-            </div>
-            <div>
-              <label class="mb-1 block text-sm font-bold" for="pf-phone">Contact number</label>
-              <input id="pf-phone" v-model="form.phone" type="tel" class="w-full rounded-xl border border-slate-200 px-3 py-2.5">
-            </div>
-            <div>
-              <label class="mb-1 block text-sm font-bold" for="pf-address">Address</label>
-              <input id="pf-address" v-model="form.address" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2.5">
-            </div>
-
-            <p v-if="error" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ error }}</p>
-            <div class="flex gap-2 pt-1">
-              <button type="submit" class="rounded-xl px-4 py-2.5 text-sm font-extrabold" style="background: #264ab3; color: #fff">Save</button>
-              <button type="button" class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-extrabold text-slate-600" @click="cancelEdit">Cancel</button>
-            </div>
-          </form>
-
-          <dl v-else class="mt-4 grid grid-cols-2 gap-2">
+          <dl class="mt-4 grid grid-cols-2 gap-2">
             <div class="rounded-xl bg-slate-50 p-3">
               <dt class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Email address</dt>
               <dd class="mt-1 text-sm font-bold text-blue-950 break-words">{{ auth.user?.email || 'Not provided' }}</dd>
@@ -212,6 +172,60 @@ function deleteAccount() {
           <button type="button" class="rounded-xl border border-slate-200 px-4 py-3 font-extrabold text-slate-600" @click="deleteConfirmation = false">Cancel</button>
           <button type="button" class="rounded-xl bg-red-700 px-4 py-3 font-extrabold text-white" @click="deleteAccount">Yes, delete account</button>
         </div>
+      </div>
+    </div>
+
+    <div v-if="editing" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-5" role="dialog" aria-modal="true" aria-labelledby="desktop-edit-title">
+      <div class="max-h-[calc(100vh-40px)] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color: #6f9d10">Account</p>
+            <h3 id="desktop-edit-title" class="mt-1 font-['Fraunces'] text-2xl font-bold text-blue-950">Edit profile</h3>
+          </div>
+          <button type="button" class="grid h-9 w-9 place-items-center rounded-full border border-slate-200 text-slate-500" aria-label="Close edit profile" @click="cancelEdit">×</button>
+        </div>
+
+        <form class="mt-5 space-y-4" @submit.prevent="save">
+          <div class="flex items-center gap-4">
+            <img v-if="form.avatar" :src="form.avatar" class="h-16 w-16 rounded-full object-cover" alt="Avatar preview">
+            <div v-else class="grid h-16 w-16 place-items-center rounded-full bg-blue-800 text-xl font-extrabold text-white">{{ initials }}</div>
+            <label class="cursor-pointer">
+              <span class="inline-block rounded-xl px-4 py-2 text-sm font-extrabold" style="background: #ecfccb; color: #264ab3">Choose photo</span>
+              <input type="file" accept="image/*" class="hidden" @change="onFileChange">
+            </label>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="mb-2 block text-sm font-bold" for="pf-name">Name</label>
+              <input id="pf-name" v-model="form.name" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-bold" for="pf-type">Account type</label>
+              <select id="pf-type" v-model="form.accountType" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+                <option>Personal</option><option>Business / Corporation</option><option>Group / Organization</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-bold" for="pf-email">Email address</label>
+              <input id="pf-email" v-model="form.email" type="email" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-bold" for="pf-phone">Contact number</label>
+              <input id="pf-phone" v-model="form.phone" type="tel" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="mb-2 block text-sm font-bold" for="pf-address">Address</label>
+              <input id="pf-address" v-model="form.address" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+            </div>
+          </div>
+
+          <p v-if="error" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ error }}</p>
+          <div class="flex justify-end gap-3">
+            <button type="button" class="rounded-xl border border-slate-200 px-5 py-3 font-extrabold text-slate-600" @click="cancelEdit">Cancel</button>
+            <button type="submit" class="rounded-xl px-5 py-3 font-extrabold text-white" style="background: #264ab3">Save changes</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
