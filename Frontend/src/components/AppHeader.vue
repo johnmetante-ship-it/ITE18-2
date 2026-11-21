@@ -20,23 +20,6 @@ const router = useRouter()
         <span class="w-7 h-7 rounded-full bg-lime-400 text-blue-800 grid place-items-center font-extrabold">T</span>
         <span class="text-sm font-extrabold tracking-tight" style="color: #264ab3">TARPHA CORP.</span>
       </button>
-
-      <div class="flex items-center rounded-full bg-slate-100 p-1 justify-self-center" aria-label="Preview mode">
-        <button
-          type="button"
-          class="rounded-full px-4 py-2 text-sm font-bold"
-          :class="store.mode === 'desktop' ? 'bg-white text-blue-800 shadow-sm' : 'text-slate-600'"
-          :aria-pressed="store.mode === 'desktop'"
-          @click="store.setMode('desktop')"
-        >Web</button>
-        <button
-          type="button"
-          class="rounded-full px-4 py-2 text-sm font-bold"
-          :class="store.mode === 'mobile' ? 'bg-white text-blue-800 shadow-sm' : 'text-slate-600'"
-          :aria-pressed="store.mode === 'mobile'"
-          @click="store.setMode('mobile')"
-        >Mobile App</button>
-      </div>
     </div>
   </header>
 </template>

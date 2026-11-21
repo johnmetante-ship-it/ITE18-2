@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBookingStore } from './stores/booking'
 import AppHeader from './components/AppHeader.vue'
@@ -10,11 +10,31 @@ import AppToast from './components/AppToast.vue'
 const store = useBookingStore()
 const router = useRouter()
 
+let modeMediaQuery = null
+
+function syncModeToViewport() {
+  store.refreshMode()
+  refreshIcons()
+}
+
 function refreshIcons() {
   requestAnimationFrame(() => window.lucide?.createIcons?.())
 }
 
-onMounted(refreshIcons)
+onMounted(() => {
+  refreshIcons()
+  store.refreshMode()
+
+  modeMediaQuery = window.matchMedia('(max-width: 760px)')
+  modeMediaQuery.addEventListener('change', syncModeToViewport)
+  window.addEventListener('resize', syncModeToViewport)
+})
+
+onUnmounted(() => {
+  modeMediaQuery?.removeEventListener('change', syncModeToViewport)
+  window.removeEventListener('resize', syncModeToViewport)
+})
+
 router.afterEach(refreshIcons)
 watch(() => store.mode, () => refreshIcons())
 </script>

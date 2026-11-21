@@ -19,7 +19,17 @@ export const useBookingStore = defineStore('booking', () => {
 
   const saved = ref(new Set())
   const booked = ref(null)
-  const mode = ref('desktop')
+  function detectDeviceMode() {
+    if (typeof window === 'undefined') return 'desktop'
+
+    const narrowScreen = window.matchMedia('(max-width: 760px)').matches
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches
+    const mobileUserAgent = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
+    return narrowScreen || coarsePointer || mobileUserAgent ? 'mobile' : 'desktop'
+  }
+
+  const mode = ref(detectDeviceMode())
   const currentId = ref(null)
   const activeFilter = ref('all')
   const searchQuery = ref('')
@@ -34,6 +44,10 @@ export const useBookingStore = defineStore('booking', () => {
 
   function setMode(m) {
     mode.value = m
+  }
+
+  function refreshMode() {
+    mode.value = detectDeviceMode()
   }
 
   function openDetail(id) {
@@ -92,6 +106,7 @@ export const useBookingStore = defineStore('booking', () => {
     current,
     savedList,
     setMode,
+    refreshMode,
     openDetail,
     isSaved,
     toggleSave,
