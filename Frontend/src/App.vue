@@ -42,7 +42,7 @@ watch(() => store.mode, () => refreshIcons())
 <template>
   <div class="app-shell">
     <AppHeader />
-    <main class="web-stage mx-auto p-5">
+    <main class="web-stage mx-auto" :class="store.mode === 'desktop' ? 'p-5' : 'p-0'">
       <section v-if="store.mode === 'desktop'" class="web-page bg-white rounded-[30px] overflow-hidden shadow-xl shadow-blue-950/10">
         <WebNav />
         <router-view v-slot="{ Component }">

@@ -34,24 +34,24 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .chip.active { background: var(--cobalt); color: #fff; border-color: var(--cobalt); }
 
 .phone {
-  width: min(100%, 390px);
-  height: 830px;
-  border: 10px solid #162038;
-  border-radius: 38px;
+  width: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 25px 60px rgba(24, 32, 42, .25);
   position: relative;
   margin: 0 auto;
 }
 .mobile-content {
   height: 100%;
+  width: 100%;
   overflow-y: auto;
-  padding-bottom: 82px;
+  padding-bottom: max(82px, env(safe-area-inset-bottom));
+  overscroll-behavior-y: contain;
   scrollbar-gutter: stable;
 }
 .mobile-bottom {
-  position: absolute;
+  position: fixed;
   bottom: 0; left: 0; right: 0;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -74,4 +74,10 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 
 @media (max-width: 760px) {
   .hero-arc { border-radius: 0 0 60px 0; }
+
+  .app-shell > header { display: none; }
+
+  .mobile-bottom {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
 }
