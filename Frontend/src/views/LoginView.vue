@@ -37,39 +37,46 @@ function useDemo() {
 </script>
 
 <template>
-  <div class="max-w-md mx-auto px-7 py-12">
+  <div class="mx-auto max-w-5xl px-5 py-5 lg:h-[calc(100vh-110px)] lg:overflow-hidden lg:px-8">
     <button type="button" class="inline-flex items-center gap-2 text-sm font-bold text-blue-800" @click="router.push('/welcome')">
       <i data-lucide="arrow-left" class="w-5 h-5"></i>Back to browsing
     </button>
 
-    <div class="mt-6 rounded-3xl border border-slate-100 bg-white p-7 shadow-sm">
-      <div class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-blue-800 text-white">
-        <i data-lucide="user" class="w-7 h-7"></i>
-      </div>
-      <h1 class="mt-4 text-center font-['Fraunces'] font-bold text-blue-950" style="font-size: 26px">Welcome back</h1>
-      <p class="mt-2 text-center text-sm text-slate-600">Sign in to continue planning your Caraga trip.</p>
-
-      <form class="mt-7 space-y-4" @submit.prevent="submit">
+    <section class="mt-4 overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm lg:grid lg:h-[calc(100%-44px)] lg:min-h-[420px] lg:grid-cols-[360px_minmax(0,1fr)]">
+      <aside class="relative overflow-hidden bg-blue-800 p-7 text-white lg:flex lg:flex-col lg:justify-between">
         <div>
-          <label class="mb-2 block font-bold text-sm" for="login-email">Email address</label>
-          <input id="login-email" v-model="form.email" type="email" autocomplete="email" class="w-full rounded-xl border border-slate-200 px-4 py-3" placeholder="you@example.com">
+          <div class="grid h-14 w-14 place-items-center rounded-full bg-blue-950 text-white">
+            <i data-lucide="user" class="w-7 h-7"></i>
+          </div>
+          <h1 class="mt-5 font-['Fraunces'] font-bold" style="font-size: 30px">Welcome back</h1>
+          <p class="mt-3 max-w-xs text-sm leading-6 text-blue-100">Sign in to continue planning your next Caraga adventure.</p>
         </div>
-        <p v-if="error" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ error }}</p>
-        <button type="submit" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #264ab3; color: #fff">Sign in</button>
-      </form>
+        <p class="hidden text-xs font-bold uppercase tracking-widest text-blue-200 lg:block">Explore · Plan · Book</p>
+      </aside>
 
-      <div class="my-5 flex items-center gap-3">
-        <span class="h-px flex-1 bg-slate-200"></span>
-        <span class="text-xs font-bold text-slate-400">or</span>
-        <span class="h-px flex-1 bg-slate-200"></span>
+      <div class="flex flex-col justify-center p-6 lg:p-10">
+        <form class="space-y-4" @submit.prevent="submit">
+          <div>
+            <label class="mb-2 block text-sm font-bold" for="login-email">Email address</label>
+            <input id="login-email" v-model="form.email" type="email" autocomplete="email" class="w-full rounded-xl border border-slate-200 px-4 py-3" placeholder="you@example.com">
+          </div>
+          <p v-if="error" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ error }}</p>
+          <button type="submit" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #264ab3; color: #fff">Sign in</button>
+        </form>
+
+        <div class="my-5 flex items-center gap-3">
+          <span class="h-px flex-1 bg-slate-200"></span>
+          <span class="text-xs font-bold text-slate-400">or</span>
+          <span class="h-px flex-1 bg-slate-200"></span>
+        </div>
+
+        <button type="button" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #a8dc2f; color: #18202a" @click="useDemo">Use demo account</button>
+
+        <p class="mt-5 text-center text-sm text-slate-600">
+          New to AgriSuroy?
+          <button type="button" class="font-bold text-blue-800 hover:underline" @click="router.push('/register')">Create an account</button>
+        </p>
       </div>
-
-      <button type="button" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #a8dc2f; color: #18202a" @click="useDemo">Use demo account</button>
-
-      <p class="mt-5 text-center text-sm text-slate-600">
-        New to AgriSuroy?
-        <button type="button" class="font-bold text-blue-800 hover:underline" @click="router.push('/register')">Create an account</button>
-      </p>
-    </div>
+    </section>
   </div>
 </template>

@@ -61,6 +61,7 @@ const sellerInitials = computed(() =>
 const profileForm = reactive({ name: '', email: '', phone: '', address: '', accountType: 'Personal', avatar: '' })
 const profileError = ref('')
 const deleteConfirmation = ref(false)
+const signOutConfirmation = ref(false)
 
 function refresh() {
   requestAnimationFrame(() => window.lucide?.createIcons?.())
@@ -221,6 +222,15 @@ function reset() {
   error.value = ''
   view.value = 'home'
   store.toast('Demo reset')
+}
+
+function confirmSignOut() {
+  auth.logout()
+  signOutConfirmation.value = false
+  view.value = 'home'
+  guestView.value = 'landing'
+  store.toast('Signed out')
+  refresh()
 }
 
 onMounted(refresh)
@@ -666,12 +676,17 @@ onMounted(refresh)
           </div>
           <button class="mt-6 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #264ab3; color: #fff" @click="startEditProfile">Edit profile</button>
           <button class="mt-3 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #a8dc2f; color: #18202a" @click="reset">Reset demo</button>
-          <button class="mt-3 w-full rounded-xl border border-slate-200 py-3 font-extrabold text-slate-600" type="button" @click="signOut">Sign out</button>
+          <button class="mt-3 w-full rounded-xl border border-slate-200 py-3 font-extrabold text-slate-600" type="button" @click="signOutConfirmation = true">Sign out</button>
 
-          <div class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4">
-            <h4 class="font-bold text-red-900">Delete account</h4>
-            <p class="mt-1 text-xs leading-relaxed text-red-800">Permanently removes your profile, listings, purchases, and saved demo data.</p>
-            <button type="button" class="mt-3 w-full rounded-xl bg-red-700 py-3 font-extrabold text-white" @click="deleteConfirmation = true">Delete my account</button>
+          <div v-if="signOutConfirmation" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-5" role="dialog" aria-modal="true" aria-labelledby="mobile-signout-title">
+            <div class="w-full rounded-3xl bg-white p-5 shadow-2xl">
+              <h3 id="mobile-signout-title" class="font-['Fraunces'] text-lg font-bold text-blue-950">Sign out of your account?</h3>
+              <p class="mt-2 text-sm leading-relaxed text-slate-600">You can sign back in later with the same demo account details.</p>
+              <div class="mt-5 grid grid-cols-2 gap-3">
+                <button type="button" class="rounded-xl border border-slate-200 px-3 py-3 font-extrabold text-slate-600" @click="signOutConfirmation = false">Cancel</button>
+                <button type="button" class="rounded-xl px-3 py-3 font-extrabold text-white" style="background: #264ab3" @click="confirmSignOut">Sign out</button>
+              </div>
+            </div>
           </div>
 
           <div v-if="deleteConfirmation" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-5" role="dialog" aria-modal="true" aria-labelledby="mobile-delete-title">

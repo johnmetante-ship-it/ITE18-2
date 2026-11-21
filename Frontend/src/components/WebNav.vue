@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
@@ -21,8 +22,16 @@ function isActive(path) {
   return route.path.startsWith(path)
 }
 
+const signOutConfirmation = ref(false)
+
 function signOut() {
   auth.logout()
+  router.push('/welcome')
+}
+
+function confirmSignOut() {
+  auth.logout()
+  signOutConfirmation.value = false
   router.push('/welcome')
 }
 </script>
@@ -52,7 +61,7 @@ function signOut() {
 
       <div class="flex shrink-0 items-center gap-3">
         <span class="hidden lg:inline text-sm font-bold text-slate-500">Hi, {{ auth.user.name.split(' ')[0] }}</span>
-        <button type="button" class="text-sm font-bold text-slate-600 hover:underline" @click="signOut">Sign out</button>
+        <button type="button" class="text-sm font-bold text-slate-600 hover:underline" @click="signOutConfirmation = true">Sign out</button>
       </div>
     </template>
 
@@ -64,5 +73,16 @@ function signOut() {
         <button type="button" class="rounded-full px-4 py-2 font-extrabold" style="background: #264ab3; color: #fff" @click="router.push('/register')">Register</button>
       </nav>
     </template>
+  </div>
+
+  <div v-if="signOutConfirmation" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-5" role="dialog" aria-modal="true" aria-labelledby="desktop-signout-title">
+    <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+      <h3 id="desktop-signout-title" class="font-['Fraunces'] text-xl font-bold text-blue-950">Sign out of your account?</h3>
+      <p class="mt-3 text-sm leading-relaxed text-slate-600">You can sign back in later with the same demo account details.</p>
+      <div class="mt-6 flex justify-end gap-3">
+        <button type="button" class="rounded-xl border border-slate-200 px-4 py-3 font-extrabold text-slate-600" @click="signOutConfirmation = false">Cancel</button>
+        <button type="button" class="rounded-xl px-4 py-3 font-extrabold text-white" style="background: #264ab3" @click="confirmSignOut">Sign out</button>
+      </div>
+    </div>
   </div>
 </template>
