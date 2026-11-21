@@ -127,6 +127,17 @@ export const useMarketplaceStore = defineStore('marketplace', () => {
     return true
   }
 
+  function clearMarketplaceData() {
+    userListings.value = []
+    purchases.value = []
+    activeCategory.value = 'All'
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      /* ignore */
+    }
+  }
+
   return {
     listings,
     userListings,
@@ -140,5 +151,6 @@ export const useMarketplaceStore = defineStore('marketplace', () => {
     listItem,
     seedDemoListing,
     unlistItem,
+    clearMarketplaceData,
   }
 })

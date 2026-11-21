@@ -29,8 +29,12 @@ function signOut() {
 
 <template>
   <div class="flex items-center justify-between gap-5 px-7 py-4 border-b border-slate-100">
-    <button type="button" class="shrink-0 font-extrabold text-2xl text-blue-800" @click="router.push(auth.isRegistered ? '/home' : '/welcome')">
-      AgriSuroy Booking
+    <button type="button" class="shrink-0 text-left" @click="router.push(auth.isRegistered ? '/home' : '/welcome')">
+      <span class="flex items-center gap-1.5 text-[10px] font-extrabold tracking-wide" style="color: #264ab3">
+        <span class="grid h-5 w-5 place-items-center rounded-full bg-lime-400 text-[10px] text-blue-800">T</span>
+        TARPHA CORP.
+      </span>
+      <span class="mt-1 block text-2xl font-extrabold text-blue-800">AgriSuroy Booking</span>
     </button>
 
     <template v-if="auth.isRegistered">

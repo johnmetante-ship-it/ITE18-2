@@ -2,7 +2,6 @@
 import { onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBookingStore } from './stores/booking'
-import AppHeader from './components/AppHeader.vue'
 import WebNav from './components/WebNav.vue'
 import MobileShell from './components/MobileShell.vue'
 import AppToast from './components/AppToast.vue'
@@ -41,7 +40,6 @@ watch(() => store.mode, () => refreshIcons())
 
 <template>
   <div class="app-shell">
-    <AppHeader />
     <main class="web-stage mx-auto" :class="store.mode === 'desktop' ? 'p-5' : 'p-0'">
       <section v-if="store.mode === 'desktop'" class="web-page bg-white rounded-[30px] overflow-hidden shadow-xl shadow-blue-950/10">
         <WebNav />

@@ -95,5 +95,14 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, isRegistered, register, login, updateProfile, seedDemoAccount, logout }
+  function deleteAccount() {
+    user.value = null
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return { user, isRegistered, register, login, updateProfile, seedDemoAccount, logout, deleteAccount }
 })
