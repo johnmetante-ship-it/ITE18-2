@@ -222,14 +222,6 @@ function deleteAccount() {
   refresh()
 }
 
-function reset() {
-  store.reset()
-  Object.assign(form, { date: '', guests: '', activity: '', name: '', email: '' })
-  error.value = ''
-  view.value = 'home'
-  store.toast('Demo reset')
-}
-
 function confirmSignOut() {
   auth.logout()
   signOutConfirmation.value = false
@@ -685,7 +677,6 @@ onMounted(refresh)
             <p class="mt-1 text-sm font-bold text-blue-800" style="color: #264ab3">WWW.AGRISUROY.COM</p>
           </div>
           <button class="mt-6 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #264ab3; color: #fff" @click="startEditProfile">Edit profile</button>
-          <button class="mt-3 w-full rounded-xl py-3 font-extrabold" type="button" style="background: #a8dc2f; color: #18202a" @click="reset">Reset demo</button>
           <button class="mt-3 w-full rounded-xl border border-slate-200 py-3 font-extrabold text-slate-600" type="button" @click="signOutConfirmation = true">Sign out</button>
 
           <div v-if="signOutConfirmation" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-5" role="dialog" aria-modal="true" aria-labelledby="mobile-signout-title">

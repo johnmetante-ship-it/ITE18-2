@@ -71,11 +71,6 @@ function save() {
   store.toast('Profile updated')
 }
 
-function reset() {
-  store.reset()
-  store.toast('Demo reset')
-}
-
 function unlist(id) {
   if (market.unlistItem(id)) store.toast('Item unlisted')
 }
@@ -90,7 +85,7 @@ function deleteAccount() {
 </script>
 
 <template>
-  <div class="mx-auto h-[calc(100vh-110px)] max-w-[1600px] overflow-hidden px-8 pb-4 pt-5">
+  <div class="mx-auto min-h-[calc(100vh-110px)] max-w-[1600px] overflow-y-auto px-8 pb-6 pt-5">
     <div class="mb-4 flex items-end justify-between">
       <div>
         <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color: #6f9d10">My profile · Demo</p>
@@ -98,9 +93,9 @@ function deleteAccount() {
       </div>
     </div>
 
-    <div class="grid h-[calc(100%-52px)] items-stretch gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
+    <div class="grid items-start gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
       <aside>
-        <section class="h-full rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
+        <section class="max-h-[calc(100vh-190px)] overflow-y-auto rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
           <div class="flex items-center gap-4">
             <img v-if="auth.user?.avatar" :src="auth.user.avatar" class="h-16 w-16 shrink-0 rounded-full object-cover" alt="Profile photo">
             <div v-else class="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-blue-800 text-xl font-extrabold text-white">{{ initials }}</div>
@@ -110,7 +105,7 @@ function deleteAccount() {
             </div>
           </div>
 
-          <form v-if="editing" class="mt-6 space-y-3" @submit.prevent="save">
+          <form v-if="editing" class="mt-4 space-y-2" @submit.prevent="save">
             <div class="flex items-center gap-3">
               <img v-if="form.avatar" :src="form.avatar" class="h-14 w-14 rounded-full object-cover" alt="Avatar preview">
               <div v-else class="grid h-14 w-14 place-items-center rounded-full bg-blue-800 text-lg font-extrabold text-white">{{ initials }}</div>
@@ -198,20 +193,6 @@ function deleteAccount() {
           </div>
           <p v-else class="mt-5 rounded-xl bg-slate-50 p-5 text-sm text-slate-600">You haven't listed anything yet. Head to the Marketplace to add your first item.</p>
         </section>
-
-        <div class="grid gap-6 md:grid-cols-2">
-          <section class="rounded-3xl border border-slate-100 bg-slate-50 p-6">
-            <p class="text-xs font-extrabold uppercase tracking-widest text-lime-700" style="color: #6f9d10">Connect with AgriSuroy</p>
-            <p class="mt-3 font-bold text-blue-900" style="color: #264ab3">CARAGRISUROY@GMAIL.COM</p>
-            <p class="mt-1 text-sm font-bold text-blue-800" style="color: #264ab3">WWW.AGRISUROY.COM</p>
-          </section>
-
-          <section class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-            <h3 class="font-['Fraunces'] font-bold text-blue-950" style="font-size: 18px">Demo controls</h3>
-            <p class="mt-2 text-sm text-slate-600">Reset your current demo bookings, searches, and saved destinations.</p>
-            <button type="button" class="mt-4 rounded-xl px-5 py-3 font-extrabold" style="background: #a8dc2f; color: #18202a" @click="reset">Reset demo</button>
-          </section>
-        </div>
 
         <section class="flex flex-col gap-4 rounded-3xl border border-red-200 bg-red-50 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
