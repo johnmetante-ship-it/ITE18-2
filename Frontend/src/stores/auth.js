@@ -24,10 +24,11 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(loadUser())
   const isRegistered = computed(() => !!user.value)
 
-  function register({ name, email, phone, address, accountType }) {
+  function register({ name, email, password, phone, address, accountType }) {
     const record = {
       name: String(name || '').trim(),
       email: String(email || '').trim().toLowerCase(),
+      password: String(password || ''),
       phone: String(phone || '').trim(),
       address: String(address || '').trim(),
       accountType: accountType || 'Personal',
@@ -39,20 +40,17 @@ export const useAuthStore = defineStore('auth', () => {
     return record
   }
 
-  function login({ email }) {
+  function login({ email, password }) {
     const previous = loadUser()
-    const record = {
-      name: previous?.name || String(email || '').split('@')[0] || 'Traveler',
-      email: String(email || '').trim().toLowerCase(),
-      phone: previous?.phone || '',
-      address: previous?.address || '',
-      accountType: previous?.accountType || 'Personal',
-      avatar: previous?.avatar || '',
-      registeredAt: previous?.registeredAt || new Date().toISOString(),
-    }
-    user.value = record
-    persist(record)
-    return record
+    const normalizedEmail = String(email || '').trim().toLowerCase()
+
+    if (!previous) return { ok: false, message: 'No account is registered on this device.' }
+    if (previous.email !== normalizedEmail) return { ok: false, message: 'No account was found with that email address.' }
+    if (previous.password && String(password || '') !== previous.password) return { ok: false, message: 'Incorrect password.' }
+
+    user.value = previous
+    persist(previous)
+    return { ok: true, user: previous }
   }
 
   function updateProfile(data) {
@@ -71,28 +69,8 @@ export const useAuthStore = defineStore('auth', () => {
     return record
   }
 
-  function seedDemoAccount() {
-    const record = {
-      name: 'Demo Farmer',
-      email: 'demo@agrisuroy.com',
-      phone: '+63 917 123 4567',
-      address: 'Cabadbaran City, Agusan del Norte',
-      accountType: 'Business / Corporation',
-      avatar: '',
-      registeredAt: new Date().toISOString(),
-    }
-    user.value = record
-    persist(record)
-    return record
-  }
-
   function logout() {
     user.value = null
-    try {
-      localStorage.removeItem(STORAGE_KEY)
-    } catch {
-      /* ignore */
-    }
   }
 
   function deleteAccount() {
@@ -104,5 +82,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, isRegistered, register, login, updateProfile, seedDemoAccount, logout, deleteAccount }
+  return { user, isRegistered, register, login, updateProfile, logout, deleteAccount }
 })

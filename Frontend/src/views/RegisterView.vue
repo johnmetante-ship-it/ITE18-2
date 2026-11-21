@@ -21,7 +21,7 @@ function submit() {
     return
   }
   error.value = ''
-  auth.register({ name: form.name, email: form.email, phone: form.phone, address: form.address, accountType: form.accountType })
+  auth.register({ name: form.name, email: form.email, password: form.password, phone: form.phone, address: form.address, accountType: form.accountType })
   store.toast(`Welcome to AgriSuroy, ${form.name.trim().split(' ')[0]}!`)
   router.push('/home')
 }

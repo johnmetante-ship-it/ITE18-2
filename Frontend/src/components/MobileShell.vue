@@ -28,7 +28,7 @@ const error = ref('')
 // Guest-only mobile flow
 const guestView = ref('landing')
 const regForm = reactive({ name: '', email: '', password: '', phone: '', address: '', accountType: 'Personal' })
-const loginForm = reactive({ email: '' })
+const loginForm = reactive({ email: '', password: '' })
 const authError = ref('')
 
 const initials = computed(() =>
@@ -138,7 +138,7 @@ function submitRegister() {
     return
   }
   authError.value = ''
-  auth.register({ name: regForm.name, email: regForm.email, phone: regForm.phone, address: regForm.address, accountType: regForm.accountType })
+  auth.register({ name: regForm.name, email: regForm.email, password: regForm.password, phone: regForm.phone, address: regForm.address, accountType: regForm.accountType })
   view.value = 'home'
   guestView.value = 'landing'
   store.toast(`Welcome to AgriSuroy, ${regForm.name.trim().split(' ')[0]}!`)
@@ -146,16 +146,22 @@ function submitRegister() {
 }
 
 function submitLogin() {
-  if (!loginForm.email.trim()) {
-    authError.value = 'Please enter your email address to sign in.'
+  if (!loginForm.email.trim() || !loginForm.password) {
+    authError.value = 'Please enter your email address and password.'
     return
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginForm.email.trim())) {
     authError.value = 'Please enter a valid email address.'
     return
   }
+
+  const result = auth.login({ email: loginForm.email, password: loginForm.password })
+  if (!result.ok) {
+    authError.value = result.message
+    return
+  }
+
   authError.value = ''
-  auth.login({ email: loginForm.email })
   view.value = 'home'
   guestView.value = 'landing'
   store.toast('Welcome back!')
@@ -359,7 +365,11 @@ onMounted(refresh)
             <form class="mt-5 space-y-4" @submit.prevent="submitLogin">
               <div>
                 <label class="mb-2 block font-bold text-sm" for="m-login-email">Email address</label>
-                <input id="m-login-email" v-model="loginForm.email" type="email" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+                <input id="m-login-email" v-model="loginForm.email" type="email" autocomplete="email" class="w-full rounded-xl border border-slate-200 px-4 py-3">
+              </div>
+              <div>
+                <label class="mb-2 block font-bold text-sm" for="m-login-password">Password</label>
+                <input id="m-login-password" v-model="loginForm.password" type="password" autocomplete="current-password" class="w-full rounded-xl border border-slate-200 px-4 py-3">
               </div>
               <p v-if="authError" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ authError }}</p>
               <button type="submit" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #264ab3; color: #fff">Sign in</button>
@@ -681,7 +691,7 @@ onMounted(refresh)
           <div v-if="signOutConfirmation" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-5" role="dialog" aria-modal="true" aria-labelledby="mobile-signout-title">
             <div class="w-full rounded-3xl bg-white p-5 shadow-2xl">
               <h3 id="mobile-signout-title" class="font-['Fraunces'] text-lg font-bold text-blue-950">Sign out of your account?</h3>
-              <p class="mt-2 text-sm leading-relaxed text-slate-600">You can sign back in later with the same demo account details.</p>
+              <p class="mt-2 text-sm leading-relaxed text-slate-600">You can sign back in later with the same email address and password.</p>
               <div class="mt-5 grid grid-cols-2 gap-3">
                 <button type="button" class="rounded-xl border border-slate-200 px-3 py-3 font-extrabold text-slate-600" @click="signOutConfirmation = false">Cancel</button>
                 <button type="button" class="rounded-xl px-3 py-3 font-extrabold text-white" style="background: #264ab3" @click="confirmSignOut">Sign out</button>

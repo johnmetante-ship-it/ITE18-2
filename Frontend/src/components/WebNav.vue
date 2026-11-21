@@ -78,7 +78,7 @@ function confirmSignOut() {
   <div v-if="signOutConfirmation" class="fixed inset-0 z-50 grid place-items-center bg-slate-950/50 p-5" role="dialog" aria-modal="true" aria-labelledby="desktop-signout-title">
     <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
       <h3 id="desktop-signout-title" class="font-['Fraunces'] text-xl font-bold text-blue-950">Sign out of your account?</h3>
-      <p class="mt-3 text-sm leading-relaxed text-slate-600">You can sign back in later with the same demo account details.</p>
+      <p class="mt-3 text-sm leading-relaxed text-slate-600">You can sign back in later with the same email address and password.</p>
       <div class="mt-6 flex justify-end gap-3">
         <button type="button" class="rounded-xl border border-slate-200 px-4 py-3 font-extrabold text-slate-600" @click="signOutConfirmation = false">Cancel</button>
         <button type="button" class="rounded-xl px-4 py-3 font-extrabold text-white" style="background: #264ab3" @click="confirmSignOut">Sign out</button>

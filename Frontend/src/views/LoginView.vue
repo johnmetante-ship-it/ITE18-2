@@ -3,36 +3,33 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useBookingStore } from '../stores/booking'
-import { useMarketplaceStore } from '../stores/marketplace'
 
 const auth = useAuthStore()
 const store = useBookingStore()
-const market = useMarketplaceStore()
 const router = useRouter()
 
-const form = reactive({ email: '' })
+const form = reactive({ email: '', password: '' })
 const error = ref('')
 
 function submit() {
-  if (!form.email.trim()) {
-    error.value = 'Please enter your email address to sign in.'
+  if (!form.email.trim() || !form.password) {
+    error.value = 'Please enter your email address and password.'
     return
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
     error.value = 'Please enter a valid email address.'
     return
   }
+
+  const result = auth.login({ email: form.email, password: form.password })
+  if (!result.ok) {
+    error.value = result.message
+    return
+  }
+
   error.value = ''
-  auth.login({ email: form.email })
   store.toast('Welcome back!')
   router.push('/home')
-}
-
-function useDemo() {
-  const user = auth.seedDemoAccount()
-  market.seedDemoListing(user)
-  store.toast('Demo account loaded with a listed item')
-  router.push('/profile')
 }
 </script>
 
@@ -60,17 +57,13 @@ function useDemo() {
             <label class="mb-2 block text-sm font-bold" for="login-email">Email address</label>
             <input id="login-email" v-model="form.email" type="email" autocomplete="email" class="w-full rounded-xl border border-slate-200 px-4 py-3" placeholder="you@example.com">
           </div>
+          <div>
+            <label class="mb-2 block text-sm font-bold" for="login-password">Password</label>
+            <input id="login-password" v-model="form.password" type="password" autocomplete="current-password" class="w-full rounded-xl border border-slate-200 px-4 py-3" placeholder="Enter your password">
+          </div>
           <p v-if="error" class="rounded-xl bg-red-50 p-3 text-sm text-red-700" role="alert">{{ error }}</p>
           <button type="submit" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #264ab3; color: #fff">Sign in</button>
         </form>
-
-        <div class="my-5 flex items-center gap-3">
-          <span class="h-px flex-1 bg-slate-200"></span>
-          <span class="text-xs font-bold text-slate-400">or</span>
-          <span class="h-px flex-1 bg-slate-200"></span>
-        </div>
-
-        <button type="button" class="w-full rounded-xl px-5 py-3 font-extrabold" style="background: #a8dc2f; color: #18202a" @click="useDemo">Use demo account</button>
 
         <p class="mt-5 text-center text-sm text-slate-600">
           New to AgriSuroy?
